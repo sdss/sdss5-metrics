@@ -1,0 +1,2 @@
+recursive-include python/sdss5-metrics/etc *
+recursive-include cextern/**/*
