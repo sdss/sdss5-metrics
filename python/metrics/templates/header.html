@@ -1,0 +1,16 @@
+<div class="navbar navbar-default">
+  <div class="logo">
+    <a href="/" class="simple-text logo-normal">Metrics {% if isDev %} <span style="color:red"> DEV </span> {% elif isStable %} <span style="color:green"> STABLE </span> {% endif %}</a>
+  </div>
+
+  <div class="nav">
+    <ul class="nav justify-content-center">
+      <li class="nav-item" {% if active_page == "cumulative" %} style="background-color: rgba(224, 45, 45, .6);" {% endif %}>
+        <a class="nav-link" href="/cumulative.html">
+          <p>cumulative</p>
+        </a>
+      </li>
+    </ul>
+  </div>
+  
+</div>
