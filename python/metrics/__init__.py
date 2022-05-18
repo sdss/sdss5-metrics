@@ -1,5 +1,6 @@
 # encoding: utf-8
 
+import os
 import asyncio
 from functools import partial
 
@@ -19,6 +20,10 @@ log = get_logger(NAME)
 
 # package name should be pip package name
 __version__ = get_package_version(path=__file__, package_name=NAME)
+
+rs_version = os.getenv("RS_VERSION")
+
+observatory = os.getenv("OBSERVATORY")
 
 
 async def wrapBlocking(func, *args, **kwargs):

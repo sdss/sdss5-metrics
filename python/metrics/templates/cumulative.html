@@ -10,13 +10,37 @@
 {% block body %}
 
 <div class="row">
-  <div class="col-md-4"></div>
+  {% for cad in cadences|sort %}
   <div class="col-md-4">
     <div class="card">
-      <img class="card-img" src="/store/test.png" width="600px">
+      <div id="{{cad}}"></div>
     </div>
   </div>
-  <div class="col-md-4"></div>
+  {% endfor %}
 </div>
+
+<script type="text/javascript">
+  const names = {{cadences | tojson}};
+  const counts = {{counts | tojson}};
+  var start = {{first}};
+  var end = {{last}};
+  for (i=0; i<names.length; i++){
+    Highcharts.chart(names[i], {
+      chart: { zoomType: 'x' },
+      title: {text: names[i]},
+      xAxis: { min: start, max: end, title: { text: 'MJD' } },
+      yAxis: { title: { text: 'Completed Designs' }, min: 0,
+               plotLines: [{ value: 0, width: 1, color: '#bf371f' }]},
+      tooltip: { crosshairs: true, shared: true },
+      series: [{
+        name: '',
+        data: counts[i],
+        showInLegend: false, 
+      }]
+    });
+    console.log(counts[i])
+  }
+  
+</script>
 
 {% endblock body %}

@@ -1,0 +1,76 @@
+{% set active_page = "summary" %}
+{% extends "layout.html" %}
+
+{% block head %}
+  <meta name="robots" content="noindex" />
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
+  <title>Summary</title>
+{% endblock head %}
+
+{% block body %}
+
+<div class="row">
+  {% for cad in cadences|sort %}
+  <div class="col-md-4">
+    <div class="card">
+      <div id="{{cad}}"></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script type="text/javascript">
+  const names = {{cadences | tojson}};
+  const bins = {{bins | tojson}};
+  const hists = {{hists | tojson}};
+  for (i=0; i<names.length; i++){
+    Highcharts.chart(names[i], {
+      chart: {
+      type: 'column'
+      },
+      title: {
+        text: names[i]
+      },
+      subtitle: {
+        text: ''
+      },
+      xAxis: {
+        categories: bins[i],
+        crosshair: true,
+        title: {
+          text: 'fields with N designs completed'
+        }
+      },
+      yAxis: {
+        min: 0,
+        title: {
+          text: ''
+        }
+      },
+      tooltip: {
+        headerFormat: '<span style="font-size:10px">{point.key} complete</span><table>',
+        pointFormat: '<tr><td style="color:{series.color};padding:0"></td>' +
+          '<td style="padding:0"><b>{point.y} fields</b></td></tr>',
+        footerFormat: '</table>',
+        shared: true,
+        useHTML: true
+      },
+      plotOptions: {
+        column: {
+          pointPadding: 0,
+          borderWidth: 0,
+          groupPadding: 0,
+          shadow: false
+        }
+      },
+      series: [{
+        name: '',
+        data: hists[i],
+        showInLegend: false, 
+      }]
+    });
+  }
+  
+</script>
+
+{% endblock body %}
