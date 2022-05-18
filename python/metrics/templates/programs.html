@@ -1,0 +1,60 @@
+{% set active_page = "programs" %}
+{% extends "layout.html" %}
+
+{% block head %}
+  <meta name="robots" content="noindex" />
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
+  <title>Programs</title>
+  <link href="../static/css/autoComplete.css" rel="stylesheet">
+{% endblock head %}
+
+{% block body %}
+
+<script src="../static/js/autoComplete.js"></script>
+
+<div class="card">
+<form autocomplete="off" action="/programs.html">
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="programSelect">Program</label>
+      <input id="programSelect" type="text" name="program" {% if chosenProgram != "none" %} value="{{chosenProgram}}" {% else %} placeholder="Program" {% endif %}>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit Query</button>
+</form>
+</div>
+
+<div class="row">
+  <div class="col-md-4">
+    <div class="card">
+      <div id="programChart"></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+  var programs = [{% for p in programs %} "{{p}}", {% endfor %}];
+
+  autocomplete(document.getElementById("programSelect"), programs);
+
+  const counts = {{counts | tojson}};
+
+  if(counts.length > 0){
+    Highcharts.chart("programChart", {
+      chart: { zoomType: 'x' },
+      title: {text: "program"},
+      xAxis: { title: { text: 'MJD' } },
+      yAxis: { title: { text: 'Completed Designs' },
+               plotLines: [{ value: 0, width: 1, color: '#bf371f' }]},
+      tooltip: { crosshairs: true, shared: true },
+      series: [{
+        name: '',
+        data: counts,
+        showInLegend: false, 
+      }]
+    });
+  }
+
+</script>
+
+{% endblock body %}

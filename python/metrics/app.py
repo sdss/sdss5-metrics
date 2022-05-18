@@ -69,6 +69,7 @@ from metrics.controllers.index import index_page
 from metrics.controllers.cumulative import cumulative_page
 from metrics.controllers.progress import progress_page
 from metrics.controllers.summary import summary_page
+from metrics.controllers.program import program_page
 
 from controllers.local import localSource
 from metrics.controllers import getTemplateDictBase
@@ -78,6 +79,7 @@ app.register_blueprint(cumulative_page)
 app.register_blueprint(progress_page)
 app.register_blueprint(localSource)
 app.register_blueprint(summary_page)
+app.register_blueprint(program_page)
 
 
 @app.errorhandler(404)

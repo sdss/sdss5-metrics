@@ -1,7 +1,7 @@
 from collections import defaultdict
 from operator import itemgetter
 
-from peewee import fn, JOIN, DoesNotExist
+from peewee import fn, JOIN
 
 from sdssdb.peewee.sdss5db import opsdb, targetdb
 
@@ -85,3 +85,39 @@ def designQueryMjd(cadence=None):
                        Field.version == dbVersion).tuples()
 
     return [[d[0], d[1]] for d in dquery]
+
+
+def programQueryMjd(program=None):
+    """query targetdb for fields matching parameters
+    """
+
+    Field = targetdb.Field
+    dbVersion = targetdb.Version.get(plan=rs_version)
+    Design = targetdb.Design
+    d2s = opsdb.DesignToStatus
+    doneStatus = opsdb.CompletionStatus.get(label="done").pk
+    assn = targetdb.Assignment
+    c2t = targetdb.CartonToTarget
+    Carton = targetdb.Carton
+
+    dquery = d2s.select(d2s.mjd)\
+                .join(Design)\
+                .join(Field, on=(Design.field_pk == Field.pk))\
+                .switch(Design)\
+                .join(assn)\
+                .join(c2t)\
+                .join(Carton)\
+                .where(d2s.completion_status_pk == doneStatus,
+                       Field.version == dbVersion,
+                       Carton.program == program).tuples()
+
+    return [d for d in dquery]
+
+
+def getPrograms():
+    Carton = targetdb.Carton
+
+    query = Carton.select(Carton.program).distinct()
+
+    return [c.program for c in query]
+

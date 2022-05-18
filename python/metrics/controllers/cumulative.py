@@ -61,25 +61,12 @@ async def index():
     for k, v in cadenceTab.items():
         cadences.append(k)
 
-        # print(k, v)
-
-        # this_count = list()
-        # for m in x_axis:
-        #     c = len(np.where(np.array(v) < m)[0])
-        #     print(m, c)
-        #     this_count.append(c)
-        # print(this_count)
-        # print([len(np.where(np.array(v) < m)[0]) for m in x_axis])
-
-        # counts.append(this_count)
         counts.append([[m, len(np.where(np.array(v) < m)[0])] for m in x_axis])
 
     templateDict.update({
         "cadences": cadences,
         "counts": counts,
-        "x_axis": x_axis,
-        "first": first,
-        "last": last
+        "x_axis": x_axis
         })
 
     return await render_template("cumulative.html", **templateDict)

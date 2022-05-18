@@ -22,14 +22,12 @@
 <script type="text/javascript">
   const names = {{cadences | tojson}};
   const counts = {{counts | tojson}};
-  var start = {{first}};
-  var end = {{last}};
   for (i=0; i<names.length; i++){
     Highcharts.chart(names[i], {
       chart: { zoomType: 'x' },
       title: {text: names[i]},
-      xAxis: { min: start, max: end, title: { text: 'MJD' } },
-      yAxis: { title: { text: 'Completed Designs' }, min: 0,
+      xAxis: { title: { text: 'MJD' } },
+      yAxis: { title: { text: 'Completed Designs' },
                plotLines: [{ value: 0, width: 1, color: '#bf371f' }]},
       tooltip: { crosshairs: true, shared: true },
       series: [{
@@ -38,7 +36,6 @@
         showInLegend: false, 
       }]
     });
-    console.log(counts[i])
   }
   
 </script>
