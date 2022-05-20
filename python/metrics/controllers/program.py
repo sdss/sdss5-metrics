@@ -32,8 +32,6 @@ async def index():
     else:
         mjds = await wrapBlocking(programQueryMjd, program=program)
 
-    print(program, mjds)
-    
     if len(mjds) == 0:
         counts = []
         x_axis = []

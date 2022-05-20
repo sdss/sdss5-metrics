@@ -43,8 +43,14 @@ async def index():
     fields = await wrapBlocking(fieldQueryDone, cadence=cadence)
 
     cadenceTab = defaultdict(list)
+    coords = list()
+    counts = list()
+    jdata = list()
     for f in fields:
         cadenceTab[convertCadence(f.cadence.label)].append(f.doneCount)
+        coords.append([f.racen, f.deccen])
+        counts.append(f.doneCount)
+        jdata.append({"ra": f.racen, "dec": f.deccen, "count": f.doneCount})
 
     cadences = list()
     plotBins = list()
@@ -70,7 +76,10 @@ async def index():
     templateDict.update({
         "cadences": cadences,
         "hists": hists,
-        "bins": plotBins
+        "bins": plotBins,
+        "coords": coords,
+        "counts": counts,
+        "jdata": jdata
         })
 
     return await render_template("summary.html", **templateDict)

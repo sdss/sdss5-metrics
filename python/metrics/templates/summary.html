@@ -10,6 +10,13 @@
 {% block body %}
 
 <div class="row">
+  <svg id="sky" width="960" height="500"></svg>
+  <div>
+    <canvas id='cbar' width="100" height="500"></canvas>
+  </div>
+</div>
+
+<div class="row">
   {% for cad in cadences|sort %}
   <div class="col-md-4">
     <div class="card">
@@ -19,7 +26,107 @@
   {% endfor %}
 </div>
 
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
 <script type="text/javascript">
+  const coords = {{coords | tojson}}
+  const counts = {{counts | tojson}}
+  const data = {{jdata | tojson}}
+
+  // var max = Math.max(counts);
+  // var min = Math.min(counts);
+  var min = 1
+  var max = 10
+
+  // LEGEND ########################
+  // LEGEND ########################
+
+  function colorBar(ctx, reverse){
+    ctx.font = '12px serif';
+    for(var j = 0; j <= 255; j++) {
+      ctx.beginPath();
+      
+      var color = 'rgb(100, ' + j + ', ' + j + ')';
+      ctx.fillStyle = color;
+
+      let i = j + 122
+      
+      ctx.fillRect(35, i, 20, 1);
+    }
+    var labels = ["1", "2", "3", "4", "5", "6", "7", "8", "9+"]
+    for(let i = 0; i < labels.length; i++){
+      let j = i*30 + 132
+      ctx.fillStyle = "black";
+      ctx.fillText(labels[i], 25, j);
+      ctx.beginPath();
+      ctx.moveTo(35, j);
+      ctx.lineTo(40, j);
+      ctx.closePath();
+      ctx.stroke();
+    }
+    ctx.save();
+    ctx.translate(197, 60);
+    ctx.rotate(-Math.PI/2);
+    ctx.font = '14px serif';
+    ctx.fillStyle = "black";
+    // ctx.textAlign = "center";
+    ctx.fillText("N designs complete", 0, 0);
+    ctx.restore();
+  }
+
+  // LEGEND ########################
+  // LEGEND ########################
+
+  var svg = d3.select("#sky"),
+      width = +svg.attr("width"),
+      height = +svg.attr("height");
+
+  var gfg = d3
+      .geoMollweide()
+      .scale(width / 1.8 / Math.PI)
+      .rotate([0, 0])
+      .center([0, 0])
+      .translate([width / 2, height / 2]);
+
+  var path = d3.geoPath()
+      .projection(gfg);
+
+  svg.append("defs").append("path")
+    .datum({type: "Sphere"})
+    .attr("id", "sphere")
+    .attr("d", path);
+
+  svg.append("use")
+      .attr("class", "stroke")
+      .attr("opacity", 0.3)
+      .attr("xlink:href", "#sphere");
+
+  var diff = max-min;
+  var scale = 255/diff;
+  function colour(d){
+    var gb = Math.round((d-min)*scale);
+    return 'rgb(100, ' + gb + ', ' + gb + ')';
+  }
+  function reverse(x){
+    return x/scale+min;
+  }
+
+  var cbarcnv = document.getElementById("cbar");
+
+  var ctx = cbarcnv.getContext('2d');
+
+  colorBar(ctx, reverse);
+
+  for (i=0; i<coords.length; i++){
+    let cen = gfg(coords[i]);
+    let c = colour(counts[i]);
+    svg.append("circle")
+      .attr("cx", cen[0])
+      .attr("cy", cen[1])
+      .attr("r", "2px")
+      .attr("fill", c);
+  }
+
   const names = {{cadences | tojson}};
   const bins = {{bins | tojson}};
   const hists = {{hists | tojson}};
