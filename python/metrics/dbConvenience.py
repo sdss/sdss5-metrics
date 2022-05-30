@@ -121,3 +121,25 @@ def getPrograms():
 
     return [c.program for c in query]
 
+
+def tabulateRaObs():
+    Field = targetdb.Field
+    dbVersion = targetdb.Version.get(plan=rs_version)
+    Design = targetdb.Design
+    cfg = opsdb.Configuration
+    exp = opsdb.Exposure
+    db_flavor = opsdb.ExposureFlavor.get(pk=1)
+
+    # apogee exposures are 8 digits, boss are 6
+    # boss is always exposed? apogee may not be, e.g. rm?
+    # can select exposure_no < 1e6 to only get boss
+
+    fields = Field.select(Field.racen)\
+                  .join(Design, on=(Field.pk == Design.field_pk))\
+                  .join(cfg).join(exp)\
+                  .where(exp.exposure_flavor == db_flavor,
+                         Field.version == dbVersion,
+                         exp.exposure_no < 1e6)\
+                  .tuples()
+
+    return [f[0] for f in fields]

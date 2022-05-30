@@ -1,6 +1,8 @@
 #!/usr/bin/env/python
 
-from quart import render_template, Blueprint
+from os import listdir
+
+from quart import render_template, Blueprint, current_app
 
 from metrics import wrapBlocking
 
@@ -14,5 +16,12 @@ progress_page = Blueprint("progress_page", __name__)
 async def index():
     """ Index page. """
     templateDict = getTemplateDictBase()
+
+    imgdir = current_app.config["STORE_FOLDER"]
+    pngs = await wrapBlocking(listdir, imgdir)
+
+    templateDict.update({
+        "pngs": pngs
+    })
 
     return await render_template("progress.html", **templateDict)

@@ -16,7 +16,7 @@ app = Quart(__name__)
 
 print("{0}App '{1}' created.{2}".format('\033[92m', __name__, '\033[0m')) # to remove later
 
-STORE_FOLDER = os.path.expanduser("~") + "/tmp/metrics"
+STORE_FOLDER = "/home/sdss5/tmp/metrics_plots/zeta-0-apo-fields-0_plan/"
 
 app.config.update({
     "STORE_FOLDER": STORE_FOLDER
