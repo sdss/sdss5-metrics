@@ -1,0 +1,43 @@
+{% set active_page = "epochs" %}
+{% extends "layout.html" %}
+
+{% block head %}
+  <meta name="robots" content="noindex" />
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
+  <title>Epochs</title>
+{% endblock head %}
+
+{% block body %}
+
+<div class="row">
+  {% for cad in cadences|sort %}
+  <div class="col-md-4">
+    <div class="card">
+      <div id="{{cad}}"></div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<script type="text/javascript">
+  const names = {{cadences | tojson}};
+  const mjds = {{mjds | tojson}};
+  for (i=0; i<names.length; i++){
+    Highcharts.chart(names[i], {
+      chart: { zoomType: 'x' },
+      title: {text: names[i]},
+      xAxis: { title: { text: 'MJD' } },
+      yAxis: { title: { text: 'Epochs Complete' },
+               plotLines: [{ value: 0, width: 1, color: '#bf371f' }]},
+      tooltip: { crosshairs: true, shared: true },
+      series: [{
+        name: '',
+        data: mjds[i],
+        showInLegend: false, 
+      }]
+    });
+  }
+  
+</script>
+
+{% endblock body %}

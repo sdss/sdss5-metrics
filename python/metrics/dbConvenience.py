@@ -143,3 +143,23 @@ def tabulateRaObs():
                   .tuples()
 
     return [f[0] for f in fields]
+
+
+def fieldForEpochs():
+    Design = targetdb.Design
+    Field = targetdb.Field
+    Cadence = targetdb.Cadence
+    DesignToStatus = opsdb.DesignToStatus
+    CompletionStatus = opsdb.CompletionStatus
+    doneStatus = CompletionStatus.get(label="done").pk
+
+    query = Design.select(Design.design_id, DesignToStatus.mjd,
+                          Cadence.nexp, Cadence.label.alias("cadence"),
+                          Field.pk)\
+                  .join(DesignToStatus, on=(Design.design_id == DesignToStatus.design_id))\
+                  .switch(Design)\
+                  .join(Field, on=(Design.field_pk == Field.pk))\
+                  .join(Cadence, on=(Field.cadence_pk == Cadence.pk))\
+                  .where(DesignToStatus.completion_status_pk == doneStatus)
+
+    return query.dicts()
