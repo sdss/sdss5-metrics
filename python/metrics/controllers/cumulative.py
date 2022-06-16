@@ -24,6 +24,8 @@ def convertCadence(cad):
         return cad
     if int(exps) > 6:
         return cad
+    elif "dark" in name and int(exps) > 1:
+        return cad
     epochs = int(epochs)
 
     name += "Nx" + exps

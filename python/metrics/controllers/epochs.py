@@ -16,8 +16,8 @@ epochs_page = Blueprint("epochs_page", __name__)
 
 
 @epochs_page.route('/epochs.html', methods=['GET', 'POST'])
-async def index():
-    """ Index page. """
+async def epochs():
+    """ epochs page. """
     templateDict = getTemplateDictBase()
 
     fields = await wrapBlocking(fieldForEpochs)
