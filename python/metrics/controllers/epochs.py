@@ -2,7 +2,7 @@
 
 from collections import defaultdict
 
-from quart import render_template, Blueprint, request
+from quart import render_template, Blueprint
 
 import numpy as np
 

@@ -1,7 +1,5 @@
 #!/usr/bin/env/python
 
-from collections import defaultdict
-
 from quart import render_template, Blueprint, request
 
 import numpy as np

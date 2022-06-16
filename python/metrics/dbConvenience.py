@@ -1,6 +1,3 @@
-from collections import defaultdict
-from operator import itemgetter
-
 from peewee import fn, JOIN
 
 from sdssdb.peewee.sdss5db import opsdb, targetdb
@@ -66,10 +63,6 @@ def designQueryMjd(cadence=None):
     """
 
     dbCad = targetdb.Cadence
-    if cadence is not None:
-        matchingCad = dbCad.select().where(dbCad.label.contains(cadence))
-    else:
-        matchingCad = dbCad.select()
 
     Field = targetdb.Field
     dbVersion = targetdb.Version.get(plan=rs_version)

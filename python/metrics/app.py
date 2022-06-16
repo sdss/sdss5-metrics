@@ -24,7 +24,6 @@ app.config.update({
 
 # Define custom filters into the Jinja2 environment.
 # Any filters defined in the jinja_env submodule are made available.
-# See: http://stackoverflow.com/questions/12288454/how-to-import-custom-jinja2-filters-from-another-file-and-using-flask
 custom_filters = {name: function
                   for name, function in getmembers(jinja_filters)
                   if isfunction(function)}
@@ -58,7 +57,8 @@ psycopg2.extensions.register_type(DEC2FLOAT)
 DECARRAY2FLOATARRAY = psycopg2.extensions.new_type(
     psycopg2.extensions.DECIMALARRAY.values,
     'DECARRAY2FLOATARRAY',
-    lambda value, curs: [float(x) if x else None for x in value[1:-1].split(",")] if value else None)
+    lambda value, curs: [float(x) if x else None for x in value[1:-1].split(",")]
+        if value else None)
 psycopg2.extensions.register_type(DECARRAY2FLOATARRAY)
 # -----------------------------------------------------------------------------
 
