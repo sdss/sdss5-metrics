@@ -33,6 +33,7 @@ def fieldQueryDone(cadence=None):
     d2s = opsdb.DesignToStatus
     doneStatus = opsdb.CompletionStatus.get(label="done").pk
     doneField = Field.alias()
+    d2f = targetdb.DesignToField
 
     obsDB = targetdb.Observatory()
     obs = obsDB.get(label=observatory)
@@ -41,8 +42,9 @@ def fieldQueryDone(cadence=None):
                       .join(d2s, JOIN.LEFT_OUTER,
                             on=(Design.design_id == d2s.design_id))\
                       .switch(Design)\
+                      .join(d2f, on=(Design.design_id == d2f.design_id))\
                       .join(doneField, JOIN.LEFT_OUTER,
-                            on=(Design.field_pk == doneField.pk))\
+                            on=(d2f.field_pk == doneField.pk))\
                       .where(d2s.completion_status_pk == doneStatus,
                              doneField.pk == Field.pk)\
                       .alias("doneCount")
@@ -69,10 +71,12 @@ def designQueryMjd(cadence=None):
     Design = targetdb.Design
     d2s = opsdb.DesignToStatus
     doneStatus = opsdb.CompletionStatus.get(label="done").pk
+    d2f = targetdb.DesignToField
 
     dquery = d2s.select(d2s.mjd, dbCad.label)\
                 .join(Design)\
-                .join(Field, on=(Design.field_pk == Field.pk))\
+                .join(d2f, on=(Design.design_id == d2f.design_id))\
+                .join(Field, on=(Field.pk == d2f.field_pk))\
                 .join(dbCad)\
                 .where(d2s.completion_status_pk == doneStatus,
                        Field.version == dbVersion).tuples()
@@ -92,10 +96,12 @@ def programQueryMjd(program=None):
     assn = targetdb.Assignment
     c2t = targetdb.CartonToTarget
     Carton = targetdb.Carton
+    d2f = targetdb.DesignToField
 
     dquery = d2s.select(d2s.mjd)\
                 .join(Design)\
-                .join(Field, on=(Design.field_pk == Field.pk))\
+                .join(d2f, on=(Design.design_id == d2f.design_id))\
+                .join(Field, on=(Field.pk == d2f.field_pk))\
                 .switch(Design)\
                 .join(assn)\
                 .join(c2t)\
@@ -122,13 +128,15 @@ def tabulateRaObs():
     cfg = opsdb.Configuration
     exp = opsdb.Exposure
     db_flavor = opsdb.ExposureFlavor.get(pk=1)
+    d2f = targetdb.DesignToField
 
     # apogee exposures are 8 digits, boss are 6
     # boss is always exposed? apogee may not be, e.g. rm?
     # can select exposure_no < 1e6 to only get boss
 
     fields = Field.select(Field.racen)\
-                  .join(Design, on=(Field.pk == Design.field_pk))\
+                  .join(d2f, on=(Field.pk == d2f.field_pk))\
+                  .join(Design, on=(Design.design_id == d2f.design_id))\
                   .join(cfg).join(exp)\
                   .where(exp.exposure_flavor == db_flavor,
                          Field.version == dbVersion,
@@ -145,13 +153,15 @@ def fieldForEpochs():
     DesignToStatus = opsdb.DesignToStatus
     CompletionStatus = opsdb.CompletionStatus
     doneStatus = CompletionStatus.get(label="done").pk
+    d2f = targetdb.DesignToField
 
     query = Design.select(Design.design_id, DesignToStatus.mjd,
                           Cadence.nexp, Cadence.label.alias("cadence"),
                           Field.pk)\
                   .join(DesignToStatus, on=(Design.design_id == DesignToStatus.design_id))\
                   .switch(Design)\
-                  .join(Field, on=(Design.field_pk == Field.pk))\
+                  .join(d2f, on=(Design.design_id == d2f.design_id))\
+                  .join(Field, on=(Field.pk == d2f.field_pk))\
                   .join(Cadence, on=(Field.cadence_pk == Cadence.pk))\
                   .where(DesignToStatus.completion_status_pk == doneStatus)
 
