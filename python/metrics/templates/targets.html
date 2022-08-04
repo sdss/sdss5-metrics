@@ -1,0 +1,73 @@
+{% set active_page = "summary" %}
+{% extends "layout.html" %}
+
+{% block head %}
+  <meta name="robots" content="noindex" />
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
+  <title>Summary</title>
+{% endblock head %}
+
+{% block body %}
+
+
+<div class="row">
+  <div class="col-md-1"></div>
+  <div class="col-md-10"  id="container"></div>
+  <div class="col-md-1"></div>
+</div>
+
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://d3js.org/d3-geo-projection.v2.min.js"></script>
+<script type="text/javascript">
+  const programs = {{programs | tojson}};
+  const done = {{done | tojson}};
+  const full = {{full | tojson}};
+  
+  Highcharts.chart('container', {
+    chart: {
+      type: 'column'
+    },
+    title: {
+      text: 'Target Visits'
+    },
+    subtitle: {
+      text: ''
+    },
+    xAxis: {
+      categories: programs,
+      crosshair: true
+    },
+    yAxis: {
+      type: 'logarithmic',
+      title: {
+        text: 'Target Count'
+      }
+    },
+    tooltip: {
+      headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+      pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+        '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
+      footerFormat: '</table>',
+      shared: true,
+      useHTML: true
+    },
+    plotOptions: {
+      column: {
+        pointPadding: 0.2,
+        borderWidth: 0
+      }
+    },
+    series: [{
+      name: 'Done',
+      data: done
+
+    }, {
+      name: 'Planned',
+      data: full
+
+    }]
+  });
+
+</script>
+
+{% endblock body %}

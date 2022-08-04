@@ -166,3 +166,38 @@ def fieldForEpochs():
                   .where(DesignToStatus.completion_status_pk == doneStatus)
 
     return query.dicts()
+
+
+def targProgress():
+    dbVersion = targetdb.Version.get(plan=rs_version)
+    Design = targetdb.Design
+    d2s = opsdb.DesignToStatus
+    doneStatus = opsdb.CompletionStatus.get(label="done").pk
+
+    AT = targetdb.AssignedTargets
+
+    doneCount = AT.select(AT.program, fn.count(AT.program))\
+                  .join(Design)\
+                  .join(d2s)\
+                  .where(d2s.completion_status_pk == doneStatus,
+                         AT.version == dbVersion.plan)\
+                  .group_by(AT.program).dicts()
+
+    doneDict = {d["program"]: d["count"] for d in doneCount}
+
+    fullCount = AT.select(AT.program, fn.count(AT.program))\
+                  .where(AT.version == dbVersion.plan)\
+                  .group_by(AT.program).dicts()
+
+    fullDict = {f["program"]: f["count"] for f in fullCount}
+
+    # cadSum = Cadence.select(Cadence.label,
+    #                         fn.UNNEST(Cadence.nexp).alias("unn"))
+    # subq = cadSum.alias("subq")
+
+    # total_exp = Cadence.select(Cadence.pk,
+    #                            fn.SUM(subq.c.unn).alias("c_sum"))\
+    #                    .join(subq, on=(Cadence.label == subq.c.label))\
+    #                    .group_by(Cadence.pk)
+
+    return doneDict, fullDict
