@@ -1,0 +1,60 @@
+{% set active_page = "cartons" %}
+{% extends "layout.html" %}
+
+{% block head %}
+  <meta name="robots" content="noindex" />
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
+  <title>Programs</title>
+  <link href="../static/css/autoComplete.css" rel="stylesheet">
+{% endblock head %}
+
+{% block body %}
+
+<script src="../static/js/autoComplete.js"></script>
+
+<div class="card">
+<form autocomplete="off" action="/cartons.html">
+  <div class="form-row">
+    <div class="form-group col-md-6">
+      <label for="cartonSelect">Carton</label>
+      <input id="cartonSelect" type="text" name="carton" {% if chosenCarton != "none" %} value="{{chosenCarton}}" {% else %} placeholder="Carton" {% endif %}>
+  </div>
+  <button type="submit" class="btn btn-primary">Submit Query</button>
+</form>
+</div>
+
+<div class="row">
+  <div class="col-md-4">
+    <div class="card">
+      <div id="cartonChart"></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+  var cartons = [{% for p in cartons %} "{{p}}", {% endfor %}];
+
+  autocomplete(document.getElementById("cartonSelect"), cartons);
+
+  const counts = {{counts | tojson}};
+
+  if(counts.length > 0){
+    Highcharts.chart("cartonChart", {
+      chart: { zoomType: 'x' },
+      title: {text: "carton"},
+      xAxis: { title: { text: 'MJD' } },
+      yAxis: { title: { text: 'Target Observations' },
+               plotLines: [{ value: 0, width: 1, color: '#bf371f' }]},
+      tooltip: { crosshairs: true, shared: true },
+      series: [{
+        name: '',
+        data: counts,
+        showInLegend: false, 
+      }]
+    });
+  }
+
+</script>
+
+{% endblock body %}

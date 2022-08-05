@@ -192,3 +192,38 @@ def programProgress():
     fullDict = {f["program"]: f["count"] for f in fullCount}
 
     return doneDict, fullDict
+
+
+def cartonQueryMjd(carton=None):
+    dbVersion = targetdb.Version.get(plan=rs_version)
+    d2s = opsdb.DesignToStatus
+    doneStatus = opsdb.CompletionStatus.get(label="done").pk
+    c2t = targetdb.CartonToTarget
+    Carton = targetdb.Carton
+
+    AT = targetdb.AssignedTargets
+
+    cquery = d2s.select(d2s.mjd)\
+                .join(AT, on=(d2s.design_id == AT.design_id))\
+                .join(c2t)\
+                .join(Carton)\
+                .where(d2s.completion_status_pk == doneStatus,
+                       AT.version == dbVersion.plan,
+                       Carton.carton == carton).tuples()
+
+    fullCount = Carton.select(fn.count(AT.assignment_pk))\
+                      .join(c2t)\
+                      .join(AT)\
+                      .where(AT.version == dbVersion.plan,
+                             Carton.carton == carton)\
+                      .scalar()
+
+    return [d for d in dquery], fullCount
+
+
+def getCartons():
+    Carton = targetdb.Carton
+
+    query = Carton.select(Carton.carton).distinct()
+
+    return [c.carton for c in query]

@@ -72,6 +72,7 @@ from metrics.controllers.summary import summary_page
 from metrics.controllers.program import program_page
 from metrics.controllers.epochs import epochs_page
 from metrics.controllers.targets import targets_page
+from metrics.controllers.cartons import carton_page
 
 from controllers.local import localSource
 from metrics.controllers import getTemplateDictBase
@@ -84,6 +85,7 @@ app.register_blueprint(summary_page)
 app.register_blueprint(program_page)
 app.register_blueprint(epochs_page)
 app.register_blueprint(targets_page)
+app.register_blueprint(carton_page)
 
 
 @app.errorhandler(404)
