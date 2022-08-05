@@ -11,8 +11,14 @@
 
 
 <div class="row">
-  <div class="col-md-1"></div>
-  <div class="col-md-10"  id="container"></div>
+  <div class="col-md-2">
+    <table>
+      {% for i in range(programs|length) %}
+        <tr><td>{{programs[i]}}</td><td>&nbsp;&nbsp;</td><td>{{percents[i]}} %</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  <div class="col-md-9"  id="container"></div>
   <div class="col-md-1"></div>
 </div>
 
