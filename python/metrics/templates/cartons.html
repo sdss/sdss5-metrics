@@ -42,7 +42,7 @@
   if(counts.length > 0){
     Highcharts.chart("cartonChart", {
       chart: { zoomType: 'x' },
-      title: {text: "carton"},
+      title: {text: "planned: {{goal}}"},
       xAxis: { title: { text: 'MJD' } },
       yAxis: { title: { text: 'Target Observations' },
                plotLines: [{ value: 0, width: 1, color: '#bf371f' }]},

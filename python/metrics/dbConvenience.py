@@ -196,34 +196,36 @@ def programProgress():
 
 def cartonQueryMjd(carton=None):
     dbVersion = targetdb.Version.get(plan=rs_version)
-    d2s = opsdb.DesignToStatus
     doneStatus = opsdb.CompletionStatus.get(label="done").pk
-    c2t = targetdb.CartonToTarget
     Carton = targetdb.Carton
+    # cartons across target selection versions have same name
+    carton_pks = Carton.select(Carton.pk)\
+                       .where(Carton.carton == carton)
 
     AT = targetdb.AssignedTargets
 
-    cquery = d2s.select(d2s.mjd)\
-                .join(AT, on=(d2s.design_id == AT.design_id))\
-                .join(c2t)\
-                .join(Carton)\
-                .where(d2s.completion_status_pk == doneStatus,
-                       AT.version == dbVersion.plan,
-                       Carton.carton == carton).tuples()
+    cquery = AT.select(AT.mjd)\
+               .where(AT.completion_status_pk == doneStatus,
+                      AT.version_pk == dbVersion.pk,
+                      AT.carton_pk << carton_pks).tuples()
 
-    fullCount = Carton.select(fn.count(AT.assignment_pk))\
-                      .join(c2t)\
-                      .join(AT)\
-                      .where(AT.version == dbVersion.plan,
-                             Carton.carton == carton)\
-                      .scalar()
+    fullCount = AT.select(fn.count(AT.assignment_pk))\
+                  .where(AT.version_pk == dbVersion.pk,
+                         AT.carton_pk << carton_pks).scalar()
 
-    return [d for d in dquery], fullCount
+    return [c for c in cquery], fullCount
 
 
 def getCartons():
     Carton = targetdb.Carton
+    AT = targetdb.AssignedTargets
 
-    query = Carton.select(Carton.carton).distinct()
+    aquery = AT.select(AT.carton_pk).distinct()
 
-    return [c.carton for c in query]
+    assigned_cartons = [a.carton_pk for a in aquery]
+
+    cquery = Carton.select(Carton.carton, Carton.pk)\
+                   .where(Carton.pk << assigned_cartons)
+
+
+    return [c.carton for c in cquery]

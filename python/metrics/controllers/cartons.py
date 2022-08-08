@@ -27,8 +27,9 @@ async def index():
 
     if carton == "none":
         mjds = []
+        fullCount = 0
     else:
-        mjds = await wrapBlocking(cartonQueryMjd, carton=carton)
+        mjds, fullCount = await wrapBlocking(cartonQueryMjd, carton=carton)
 
     if len(mjds) == 0:
         counts = []
@@ -45,7 +46,9 @@ async def index():
 
     templateDict.update({
         "cartons": cartons,
-        "counts": counts
+        "counts": counts,
+        "chosenCarton": carton,
+        "goal": fullCount
         })
 
     return await render_template("cartons.html", **templateDict)
