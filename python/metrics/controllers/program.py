@@ -27,8 +27,9 @@ async def index():
 
     if program == "none":
         mjds = []
+        fullCount = 0
     else:
-        mjds = await wrapBlocking(programQueryMjd, program=program)
+        mjds, fullCount = await wrapBlocking(programQueryMjd, program=program)
 
     if len(mjds) == 0:
         counts = []
@@ -45,7 +46,9 @@ async def index():
 
     templateDict.update({
         "programs": programs,
-        "counts": counts
+        "counts": counts,
+        "chosenProgram": program,
+        "goal": fullCount
         })
 
     return await render_template("programs.html", **templateDict)

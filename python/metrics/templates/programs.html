@@ -13,7 +13,7 @@
 <script src="../static/js/autoComplete.js"></script>
 
 <div class="card">
-<form autocomplete="off" action="/programs.html">
+<form autocomplete="off" action="/programs.html" onsubmit="clearGraph()">
   <div class="form-row">
     <div class="form-group col-md-6">
       <label for="programSelect">Program</label>
@@ -24,7 +24,7 @@
 </div>
 
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-6">
     <div class="card">
       <div id="programChart"></div>
     </div>
@@ -42,10 +42,22 @@
   if(counts.length > 0){
     Highcharts.chart("programChart", {
       chart: { zoomType: 'x' },
-      title: {text: "program"},
+      title: {text: "{{chosenProgram}}"},
       xAxis: { title: { text: 'MJD' } },
-      yAxis: { title: { text: 'Target Observations' },
+      yAxis: [{ title: { text: 'Target Observations' },
                plotLines: [{ value: 0, width: 1, color: '#bf371f' }]},
+               {
+                labels:{
+                  formatter:function(){
+                      var max={{goal}},
+                          min=0,
+                          range=max-min;                       
+                      return ((this.value-min)/(range)*100).toFixed(1) + ' %';
+                  }
+              },
+              title: { text: '% Complete'},
+              linkedTo:0,
+              opposite:true}],
       tooltip: { crosshairs: true, shared: true },
       series: [{
         name: '',
@@ -53,6 +65,10 @@
         showInLegend: false, 
       }]
     });
+  }
+
+  function clearGraph(){
+    document.getElementById('programChart').innerHTML = '<div class="loader"></div>';
   }
 
 </script>

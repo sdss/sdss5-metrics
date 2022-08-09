@@ -88,29 +88,20 @@ def programQueryMjd(program=None):
     """query targetdb for fields matching parameters
     """
 
-    Field = targetdb.Field
     dbVersion = targetdb.Version.get(plan=rs_version)
-    Design = targetdb.Design
-    d2s = opsdb.DesignToStatus
     doneStatus = opsdb.CompletionStatus.get(label="done").pk
-    assn = targetdb.Assignment
-    c2t = targetdb.CartonToTarget
-    Carton = targetdb.Carton
-    d2f = targetdb.DesignToField
+    AT = targetdb.AssignedTargets
 
-    dquery = d2s.select(d2s.mjd)\
-                .join(Design)\
-                .join(d2f, on=(Design.design_id == d2f.design_id))\
-                .join(Field, on=(Field.pk == d2f.field_pk))\
-                .switch(Design)\
-                .join(assn)\
-                .join(c2t)\
-                .join(Carton)\
-                .where(d2s.completion_status_pk == doneStatus,
-                       Field.version == dbVersion,
-                       Carton.program == program).tuples()
+    dquery = AT.select(AT.mjd)\
+               .where(AT.completion_status_pk == doneStatus,
+                      AT.version_pk == dbVersion.pk,
+                      AT.program == program).tuples()
 
-    return [d for d in dquery]
+    fullCount = AT.select(fn.count(AT.assignment_pk))\
+                  .where(AT.version_pk == dbVersion.pk,
+                         AT.program == program).scalar()
+
+    return [d for d in dquery], fullCount
 
 
 def getPrograms():
