@@ -24,7 +24,7 @@
 </div>
 
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-md-6">
     <div class="card">
       <div id="cartonChart"></div>
     </div>
@@ -75,10 +75,23 @@
   if(counts.length > 0){
     Highcharts.chart("cartonChart", {
       chart: { zoomType: 'x' },
-      title: {text: "planned: {{goal}}"},
+      title: {text: "{{chosenCarton}}, planned: {{goal}}"},
       xAxis: { title: { text: 'MJD' } },
-      yAxis: { title: { text: 'Target Observations' },
-               plotLines: [{ value: 0, width: 1, color: '#bf371f' }]},
+      yAxis: [{ title: { text: 'Target Observations' },
+                     plotLines: [{ value: 0, width: 1, color: '#bf371f' }]},
+              {
+                labels:{
+                  formatter:function(){
+                      var max={{goal}},
+                          min=0,
+                          range=max-min;                       
+                      return ((this.value-min)/(range)*100).toFixed(1) + ' %';
+                  }
+              },
+              title: { text: '% Complete'},
+              linkedTo:0,
+              opposite:true}
+              ],
       tooltip: { crosshairs: true, shared: true },
       series: [{
         name: '',
