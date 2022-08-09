@@ -180,13 +180,13 @@ def programProgress():
                   .join(Design)\
                   .join(d2s)\
                   .where(d2s.completion_status_pk == doneStatus,
-                         AT.version == dbVersion.plan)\
+                         AT.version_pk == dbVersion.pk)\
                   .group_by(AT.program).dicts()
 
     doneDict = {d["program"]: d["count"] for d in doneCount}
 
     fullCount = AT.select(AT.program, fn.count(AT.program))\
-                  .where(AT.version == dbVersion.plan)\
+                  .where(AT.version_pk == dbVersion.pk)\
                   .group_by(AT.program).dicts()
 
     fullDict = {f["program"]: f["count"] for f in fullCount}
