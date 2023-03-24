@@ -8,7 +8,7 @@ from logging import getLogger, ERROR
 import psycopg2
 from quart import Quart, render_template
 
-from metrics import jinja_filters
+from metrics import jinja_filters, observatory, rs_version
 
 getLogger('quart.serving').setLevel(ERROR)
 
@@ -16,7 +16,7 @@ app = Quart(__name__)
 
 print("{0}App '{1}' created.{2}".format('\033[92m', __name__, '\033[0m')) # to remove later
 
-STORE_FOLDER = "/home/sdss5/tmp/metrics_plots/zeta-0-apo-fields-0_plan/"
+STORE_FOLDER = f"/home/sdss5/tmp/metrics_plots/{rs_version}-{observatory.lower()}/"
 
 app.config.update({
     "STORE_FOLDER": STORE_FOLDER
@@ -74,7 +74,7 @@ from metrics.controllers.epochs import epochs_page
 from metrics.controllers.targets import targets_page
 from metrics.controllers.cartons import carton_page
 
-from controllers.local import localSource
+from metrics.controllers.local import localSource
 from metrics.controllers import getTemplateDictBase
 
 app.register_blueprint(index_page)
