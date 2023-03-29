@@ -1,0 +1,100 @@
+{% set active_page = "programs" %}
+{% extends "layout.html" %}
+
+{% block head %}
+  <meta name="robots" content="noindex" />
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
+  <title>Efficiency</title>
+
+  <script src='https://cdn.plot.ly/plotly-2.18.2.min.js'>
+{% endblock head %}
+
+{% block body %}
+
+
+
+<div class="row">
+  <div class="col-md-6">
+    <div class="card">
+      <div id="effiencyChart"></div>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+    var b1 = [];
+    for (var i = 0; i < 500; i ++) {
+      b1[i] = Math.random();
+    }
+
+    var r1 = [];
+    for (var i = 0; i < 500; i ++) {
+      r1[i] = Math.random();
+    }
+
+
+    var scatter = {
+      x: r1,
+      y: b1,
+      mode: 'markers',
+      name: 'points',
+      marker: {
+        color: 'DodgerBlue',
+        size: 4
+      },
+      type: 'scatter'
+    };
+    var xhist = {
+      x: r1,
+      name: 'x density',
+      marker: {color: 'DodgerBlue'},
+      yaxis: 'y2',
+      type: 'histogram'
+    };
+    var yhist = {
+      y: b1,
+      name: 'y density',
+      marker: {color: 'DodgerBlue'},
+      xaxis: 'x2',
+      type: 'histogram'
+    };
+    var data = [scatter, xhist, yhist];
+    var layout = {
+      showlegend: false,
+      autosize: false,
+      width: 600,
+      height: 550,
+      margin: {t: 50},
+      hovermode: 'closest',
+      bargap: 0,
+      xaxis: {
+        title: "R1",
+        domain: [0, 0.85],
+        showgrid: false,
+        zeroline: false
+      },
+      yaxis: {
+        title: "B1",
+        domain: [0, 0.85],
+        showgrid: false,
+        zeroline: false
+      },
+      xaxis2: {
+        domain: [0.85, 1],
+        showgrid: false,
+        zeroline: false
+      },
+      yaxis2: {
+        domain: [0.85, 1],
+        showgrid: false,
+        zeroline: false
+      }
+    };
+    Plotly.newPlot('effiencyChart', data, layout);
+</script>
+
+{% endblock body %}
+
+
+
+
