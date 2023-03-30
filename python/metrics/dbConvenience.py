@@ -220,3 +220,34 @@ def getCartons():
 
 
     return [c.carton for c in cquery]
+
+
+def bossSN():
+    exp = opsdb.Exposure
+    b1 = opsdb.CameraFrame.alias()
+    r1 = opsdb.CameraFrame.alias()
+    cfg = opsdb.Configuration
+    d2f = targetdb.DesignToField
+    f = targetdb.Field
+    cad = targetdb.Cadence
+    dbVersion = targetdb.Version.get(plan=rs_version)
+    bcamera = opsdb.Camera.get(label="b1")
+    rcamera = opsdb.Camera.get(label="r1")
+
+    sn2 = exp.select(b1.sn2.alias("b1"), r1.sn2.alias("r1"))\
+             .join(b1).switch(exp)\
+             .join(r1)\
+             .switch(exp).join(cfg)\
+             .join(d2f, on=(d2f.design_id == cfg.design_id))\
+             .join(f).join(cad)\
+             .where(b1.camera == bcamera, r1.camera == rcamera,
+                    b1.sn2 >= boss_threshold, r1.sn2 >= boss_threshold,
+                    cad.label % '%dark%', f.version == dbVersion)
+
+    b1 = list()
+    r1 = list()
+    for d in sn2.dicts():
+        b1.append(d["b1"])
+        r1.append(d["r1"])
+
+    return b1, r1

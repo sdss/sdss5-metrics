@@ -1,4 +1,4 @@
-{% set active_page = "programs" %}
+{% set active_page = "efficiency" %}
 {% extends "layout.html" %}
 
 {% block head %}
@@ -22,15 +22,9 @@
 </div>
 
 <script type="text/javascript">
-    var b1 = [];
-    for (var i = 0; i < 500; i ++) {
-      b1[i] = Math.random();
-    }
+    var b1 = {{b1 | tojson}};
 
-    var r1 = [];
-    for (var i = 0; i < 500; i ++) {
-      r1[i] = Math.random();
-    }
+    var r1 = {{r1 | tojson}};
 
 
     var scatter = {
@@ -49,16 +43,67 @@
       name: 'x density',
       marker: {color: 'DodgerBlue'},
       yaxis: 'y2',
-      type: 'histogram'
+      type: 'histogram',
+      xbins: {
+        end: {{meta.r_max_bin}}, 
+        size: {{meta.r_bin_width}}, 
+        start: 0.0
+      }
     };
     var yhist = {
       y: b1,
       name: 'y density',
       marker: {color: 'DodgerBlue'},
       xaxis: 'x2',
-      type: 'histogram'
+      type: 'histogram',
+      ybins: {
+        end: {{meta.b_max_bin}}, 
+        size: {{meta.b_bin_width}}, 
+        start: 0.0
+      }
     };
-    var data = [scatter, xhist, yhist];
+    var text = {
+      x: [0.5, 0.5, 4.5, 6],
+      y: [1, 3.5, 3.5, 1],
+      mode: 'text',
+      name: 'stats',
+      text: ['{{meta.not_r_b}}', '{{meta.b_not_r}}', '{{meta.r_and_b}}', '{{meta.r_not_b}}'],
+      textposition: 'top',
+      type: 'scatter',
+      textfont: {
+          color: "red",
+          size: 14
+        },
+    };
+    var xtext = {
+      x: [0.5, 5],
+      y: [75, 75],
+      yaxis: 'y2',
+      mode: 'text',
+      name: 'stats',
+      text: ['{{meta.r_bad}}', '{{meta.r_good}}'],
+      textposition: 'top',
+      type: 'scatter',
+      textfont: {
+          color: "red",
+          size: 14
+        },
+    };
+    var ytext = {
+      x: [100, 100],
+      y: [0.25, 3.5],
+      xaxis: 'x2',
+      mode: 'text',
+      name: 'stats',
+      text: ['{{meta.b_bad}}', '{{meta.b_good}}'],
+      textposition: 'top',
+      type: 'scatter',
+      textfont: {
+          color: "red",
+          size: 14
+        },
+    };
+    var data = [scatter, xhist, yhist, text, xtext, ytext];
     var layout = {
       showlegend: false,
       autosize: false,
@@ -68,16 +113,18 @@
       hovermode: 'closest',
       bargap: 0,
       xaxis: {
-        title: "R1",
+        title: '{{meta.r_camera}}',
         domain: [0, 0.85],
         showgrid: false,
-        zeroline: false
+        zeroline: false,
+        range: [0, {{meta.r_max_bin}}+{{meta.r_bin_width}}]
       },
       yaxis: {
-        title: "B1",
+        title: '{{meta.b_camera}}',
         domain: [0, 0.85],
         showgrid: false,
-        zeroline: false
+        zeroline: false,
+        range: [0, {{meta.b_max_bin}}+{{meta.b_bin_width}}]
       },
       xaxis2: {
         domain: [0.85, 1],
@@ -88,7 +135,63 @@
         domain: [0.85, 1],
         showgrid: false,
         zeroline: false
-      }
+      },
+      shapes: [
+        {
+          type: 'line',
+          xref: 'x1',
+          yref: 'y1',
+          x0: 0.0,
+          y0: {{meta.b_threshold}},
+          x1: {{meta.r_max_bin}},
+          y1: {{meta.b_threshold}},
+          line:{
+              color: 'red',
+              width: 2,
+              dash:'dot'
+          }
+        },
+        {
+          type: 'line',
+          xref: 'x2',
+          x0: 0.0,
+          y0: {{meta.b_threshold}},
+          x1: {{meta.b_max}},
+          y1: {{meta.b_threshold}},
+          line:{
+              color: 'red',
+              width: 2,
+              dash:'dot'
+          }
+        },
+        {
+          type: 'line',
+          xref: 'x1',
+          yref: 'y1',
+          y0: 0.0,
+          x0: {{meta.r_threshold}},
+          y1: {{meta.b_max_bin}},
+          x1: {{meta.r_threshold}},
+          line:{
+              color: 'red',
+              width: 2,
+              dash:'dot'
+          }
+        },
+        {
+          type: 'line',
+          yref: 'y2',
+          y0: 0.0,
+          x0: {{meta.r_threshold}},
+          y1: {{meta.r_max}},
+          x1: {{meta.r_threshold}},
+          line:{
+              color: 'red',
+              width: 2,
+              dash:'dot'
+          }
+        }
+      ]
     };
     Plotly.newPlot('effiencyChart', data, layout);
 </script>
