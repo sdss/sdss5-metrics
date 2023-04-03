@@ -5,6 +5,7 @@ from sdssdb.peewee.sdss5db import opsdb, targetdb
 from metrics import rs_version, observatory
 
 boss_threshold = 0.2
+apogee_threshold = 100
 
 
 def sn_dict():
@@ -251,3 +252,28 @@ def bossSN():
         r1.append(d["r1"])
 
     return b1, r1
+
+
+def apogeeSN():
+    exp = opsdb.Exposure
+    cf = opsdb.CameraFrame
+    cfg = opsdb.Configuration
+    d2f = targetdb.DesignToField
+    f = targetdb.Field
+    cad = targetdb.Cadence
+    dbVersion = targetdb.Version.get(plan=rs_version)
+    apcamera = opsdb.Camera.get(label="APOGEE")
+
+    sn2 = exp.select(cf.sn2)\
+             .join(cf)\
+             .switch(exp).join(cfg)\
+             .join(d2f, on=(d2f.design_id == cfg.design_id))\
+             .join(f).join(cad)\
+             .where(cf.camera == apcamera, cf.sn2 >= apogee_threshold,
+                    cad.label % '%bright%', f.version == dbVersion)
+
+    ap = list()
+    for d in sn2.dicts():
+        ap.append(d["sn2"])
+
+    return ap

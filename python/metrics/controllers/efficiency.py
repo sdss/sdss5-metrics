@@ -5,7 +5,7 @@ from quart import render_template, Blueprint, request
 import numpy as np
 
 from metrics import wrapBlocking, observatory
-from metrics.dbConvenience import bossSN
+from metrics.dbConvenience import bossSN, apogeeSN
 
 from . import getTemplateDictBase
 
@@ -17,13 +17,17 @@ async def index():
     """ Index page. """
 
     b1, r1 = await wrapBlocking(bossSN)
+    ap = await wrapBlocking(apogeeSN)
 
     meta = {"r_threshold": 3.0,
             "b_threshold": 1.5,
             "r_max_bin": 10,
-            "b_max_bin": 4}
+            "b_max_bin": 4,
+            "ap_threshold": 1012,
+            "ap_max_bin": 4000}
     meta["b_bin_width"] = meta["b_max_bin"] / 20
     meta["r_bin_width"] = meta["r_max_bin"] / 20
+    meta["ap_bin_width"] = meta["ap_max_bin"] / 20
 
     if observatory.lower() == "apo":
         meta["b_camera"] = "b1"
@@ -36,19 +40,24 @@ async def index():
     Nb1, edges = np.histogram(b1, bins=bins)
     bins = np.arange(0, meta["r_max_bin"], meta["r_bin_width"])
     Nr1, edges = np.histogram(r1, bins=bins)
+    bins = np.arange(0, meta["ap_max_bin"], meta["ap_bin_width"])
+    Nap, edges = np.histogram(ap, bins=bins)
 
     meta["b_max"] = np.max(Nb1)
     meta["r_max"] = np.max(Nr1)
+    meta["ap_max"] = np.max(Nap)
 
     b_good = np.array(b1) > meta["b_threshold"]
     r_good = np.array(r1) > meta["r_threshold"]
+    ap_good = np.array(ap) > meta["ap_threshold"] 
 
     meta["b_good"] = len(np.where(b_good)[0])
     meta["r_good"] = len(np.where(r_good)[0])
+    meta["ap_good"] = len(np.where(ap_good)[0])
 
     meta["b_bad"] = len(np.where(~b_good)[0])
     meta["r_bad"] = len(np.where(~r_good)[0])
-
+    meta["ap_bad"] = len(np.where(~ap_good)[0])
 
     meta["r_and_b"] = len(np.where(np.logical_and(r_good, b_good))[0])
     meta["r_not_b"] = len(np.where(np.logical_and(r_good, ~b_good))[0])
@@ -59,6 +68,7 @@ async def index():
     templateDict.update({
         "b1": b1,
         "r1": r1,
+        "ap": ap,
         "meta": meta
         })
 
