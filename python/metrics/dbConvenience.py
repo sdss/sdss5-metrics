@@ -232,8 +232,12 @@ def bossSN():
     f = targetdb.Field
     cad = targetdb.Cadence
     dbVersion = targetdb.Version.get(plan=rs_version)
-    bcamera = opsdb.Camera.get(label="b1")
-    rcamera = opsdb.Camera.get(label="r1")
+    if observatory.lower() == "lco":
+        bcamera = opsdb.Camera.get(label="b2")
+        rcamera = opsdb.Camera.get(label="r2")
+    else:
+        bcamera = opsdb.Camera.get(label="b1")
+        rcamera = opsdb.Camera.get(label="r1")
 
     sn2 = exp.select(b1.sn2.alias("b1"), r1.sn2.alias("r1"))\
              .join(b1).switch(exp)\
