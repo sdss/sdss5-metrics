@@ -11,7 +11,12 @@
 
 {% block body %}
 
-
+<div class="row">
+  <div class="col-md-4">
+    <input id="mjd_input" type="range" min="{{meta.mjd_min}}" max="{{meta.mjd_max}}" step="any" value="{{meta.mjd_min | int}}" oninput="reRenderHists(this.value)" style="vertical-align: middle">
+    <p>Start MJD: <output id="mjd">{{meta.mjd_min | int}}</output></p>
+</div>
+</div>
 
 <div class="row">
   <div class="col-md-4">
@@ -19,9 +24,7 @@
       <div id="bossChart"></div>
     </div>
   </div>
-</div>
 
-<div class="row">
   <div class="col-md-4">
     <div class="card">
       <div id="apogeeChart"></div>
@@ -30,233 +33,256 @@
 </div>
 
 <script type="text/javascript">
-  var b1 = {{b1 | tojson}};
+  const mjd = document.querySelector("#mjd")
+  const input = document.querySelector("#mjd_input")
+  input.addEventListener("input", (event) => {
+    mjd.textContent = parseInt(event.target.value)
+  })
 
-  var r1 = {{r1 | tojson}};
+  const b1_full = {{b1 | tojson}};
+  const r1_full = {{r1 | tojson}};
+  const ap_full = {{ap | tojson}};
+  const boss_mjds = {{boss_mjd | tojson}}
+  const ap_mjds = {{ap_mjd | tojson}}
 
-  var scatter = {
-    x: r1,
-    y: b1,
-    mode: 'markers',
-    name: 'points',
-    marker: {
-      color: 'DodgerBlue',
-      size: 4
-    },
-    type: 'scatter'
-  };
-  var xhist = {
-    x: r1,
-    name: 'x density',
-    marker: {color: 'DodgerBlue'},
-    yaxis: 'y2',
-    type: 'histogram',
-    xbins: {
-      end: {{meta.r_max_bin}}, 
-      size: {{meta.r_bin_width}}, 
-      start: 0.0
-    }
-  };
-  var yhist = {
-    y: b1,
-    name: 'y density',
-    marker: {color: 'DodgerBlue'},
-    xaxis: 'x2',
-    type: 'histogram',
-    ybins: {
-      end: {{meta.b_max_bin}}, 
-      size: {{meta.b_bin_width}}, 
-      start: 0.0
-    }
-  };
-
-  var fontCfg = {
-    color: "red",
-    size: 18,
-    family: 'Arial Black'
-  }
-
-  var text = {
-    x: [0.5, 0.5, 4.5, 6],
-    y: [1, 3.5, 3.5, 1],
-    mode: 'text',
-    name: 'stats',
-    text: ['{{meta.not_r_b}}', '{{meta.b_not_r}}', '{{meta.r_and_b}}', '{{meta.r_not_b}}'],
-    textposition: 'top',
-    type: 'scatter',
-    textfont: fontCfg
-  };
-  var xtext = {
-    x: [1, 5],
-    y: [{{meta.r_max}} - 100, {{meta.r_max}} - 100],
-    yaxis: 'y2',
-    mode: 'text',
-    name: 'stats',
-    text: ['{{meta.r_bad}}', '{{meta.r_good}}'],
-    textposition: 'top',
-    type: 'scatter',
-    textfont: fontCfg
-  };
-  var ytext = {
-    x: [{{meta.r_max}} - 100, {{meta.r_max}} - 100],
-    y: [-0.2, 3.5],
-    xaxis: 'x2',
-    mode: 'text',
-    name: 'stats',
-    text: ['{{meta.b_bad}}', '{{meta.b_good}}'],
-    textposition: 'top',
-    type: 'scatter',
-    textfont: fontCfg
-  };
-  var data = [scatter, xhist, yhist, text, xtext, ytext];
-  var layout = {
-    showlegend: false,
-    autosize: false,
-    width: 600,
-    height: 550,
-    margin: {t: 50},
-    hovermode: 'closest',
-    bargap: 0,
-    xaxis: {
-      title: '{{meta.r_camera}} SN2',
-      domain: [0, 0.85],
-      showgrid: false,
-      zeroline: false,
-      range: [0, {{meta.r_max_bin}}+{{meta.r_bin_width}}]
-    },
-    yaxis: {
-      title: '{{meta.b_camera}} SN2',
-      domain: [0, 0.85],
-      showgrid: false,
-      zeroline: false,
-      range: [-0.3, {{meta.b_max_bin}}+{{meta.b_bin_width}}]
-    },
-    xaxis2: {
-      domain: [0.85, 1],
-      showgrid: false,
-      zeroline: false
-    },
-    yaxis2: {
-      domain: [0.85, 1],
-      showgrid: false,
-      zeroline: false
-    },
-    shapes: [
-      {
-        type: 'line',
-        xref: 'x1',
-        yref: 'y1',
-        x0: 0.0,
-        y0: {{meta.b_threshold}},
-        x1: {{meta.r_max_bin}},
-        y1: {{meta.b_threshold}},
-        line:{
-            color: 'red',
-            width: 2,
-            dash:'dot'
-        }
-      },
-      {
-        type: 'line',
-        xref: 'x2',
-        x0: 0.0,
-        y0: {{meta.b_threshold}},
-        x1: {{meta.b_max}},
-        y1: {{meta.b_threshold}},
-        line:{
-            color: 'red',
-            width: 2,
-            dash:'dot'
-        }
-      },
-      {
-        type: 'line',
-        xref: 'x1',
-        yref: 'y1',
-        y0: 0.0,
-        x0: {{meta.r_threshold}},
-        y1: {{meta.b_max_bin}},
-        x1: {{meta.r_threshold}},
-        line:{
-            color: 'red',
-            width: 2,
-            dash:'dot'
-        }
-      },
-      {
-        type: 'line',
-        yref: 'y2',
-        y0: 0.0,
-        x0: {{meta.r_threshold}},
-        y1: {{meta.r_max}},
-        x1: {{meta.r_threshold}},
-        line:{
-            color: 'red',
-            width: 2,
-            dash:'dot'
-        }
+  function reRenderHists(mjd_min){
+    let b1 = [];
+    let r1 = [];
+    for (i = 0; i < boss_mjds.length; i++) {
+      if(boss_mjds[i] > mjd_min){
+        b1.push(b1_full[i]);
+        r1.push(r1_full[i]);
       }
-    ]
-  };
-  Plotly.newPlot('bossChart', data, layout);
-
-  var ap = {{ap | tojson}};
-
-  var aphist = {
-    x: ap,
-    name: 'x density',
-    marker: {color: 'DodgerBlue'},
-    type: 'histogram',
-    xbins: {
-      end: {{meta.ap_max_bin}}, 
-      size: {{meta.ap_bin_width}}, 
-      start: 0.0
     }
-  };
-  var aptext = {
-    x: [500, 3500],
-    y: [{{meta.ap_max}} - 200, {{meta.ap_max}} - 200],
-    mode: 'text',
-    name: 'stats',
-    text: ['{{meta.ap_bad}}', '{{meta.ap_good}}'],
-    textposition: 'top',
-    type: 'scatter',
-    textfont: fontCfg
-  };
-  var apdata = [aphist, aptext];
-
-  var aplayout = {
-    showlegend: false,
-    autosize: false,
-    width: 600,
-    margin: {t: 50},
-    hovermode: 'closest',
-    bargap: 0,
-    xaxis: {
-      title: 'apogee SN2',
-      showgrid: false,
-      zeroline: false,
-      range: [0, {{meta.ap_max_bin}}+{{meta.ap_bin_width}}]
-    },
-    shapes: [
-      {
-        type: 'line',
-        yref: 'y',
-        y0: 0.0,
-        x0: {{meta.ap_threshold}},
-        y1: {{meta.ap_max}},
-        x1: {{meta.ap_threshold}},
-        line:{
-            color: 'red',
-            width: 2,
-            dash:'dot'
-        }
+    var scatter = {
+      x: r1,
+      y: b1,
+      mode: 'markers',
+      name: 'points',
+      marker: {
+        color: 'DodgerBlue',
+        size: 4
+      },
+      type: 'scatter'
+    };
+    var xhist = {
+      x: r1,
+      name: 'x density',
+      marker: {color: 'DodgerBlue'},
+      yaxis: 'y2',
+      type: 'histogram',
+      xbins: {
+        end: {{meta.r_max_bin}}, 
+        size: {{meta.r_bin_width}}, 
+        start: 0.0
       }
-    ]
+    };
+    var yhist = {
+      y: b1,
+      name: 'y density',
+      marker: {color: 'DodgerBlue'},
+      xaxis: 'x2',
+      type: 'histogram',
+      ybins: {
+        end: {{meta.b_max_bin}}, 
+        size: {{meta.b_bin_width}}, 
+        start: 0.0
+      }
+    };
+
+    var fontCfg = {
+      color: "red",
+      size: 18,
+      family: 'Arial Black'
+    }
+
+    var text = {
+      x: [0.5, 0.5, 4.5, 6],
+      y: [1, 3.5, 3.5, 1],
+      mode: 'text',
+      name: 'stats',
+      text: ['{{meta.not_r_b}}', '{{meta.b_not_r}}', '{{meta.r_and_b}}', '{{meta.r_not_b}}'],
+      textposition: 'top',
+      type: 'scatter',
+      textfont: fontCfg
+    };
+    var xtext = {
+      x: [1, 5],
+      y: [{{meta.r_max}} - 100, {{meta.r_max}} - 100],
+      yaxis: 'y2',
+      mode: 'text',
+      name: 'stats',
+      text: ['{{meta.r_bad}}', '{{meta.r_good}}'],
+      textposition: 'top',
+      type: 'scatter',
+      textfont: fontCfg
+    };
+    var ytext = {
+      x: [{{meta.r_max}} - 100, {{meta.r_max}} - 100],
+      y: [-0.2, 3.5],
+      xaxis: 'x2',
+      mode: 'text',
+      name: 'stats',
+      text: ['{{meta.b_bad}}', '{{meta.b_good}}'],
+      textposition: 'top',
+      type: 'scatter',
+      textfont: fontCfg
+    };
+    var data = [scatter, xhist, yhist, text, xtext, ytext];
+    var layout = {
+      showlegend: false,
+      autosize: false,
+      width: 600,
+      height: 550,
+      margin: {t: 50},
+      hovermode: 'closest',
+      bargap: 0,
+      xaxis: {
+        title: '{{meta.r_camera}} SN2',
+        domain: [0, 0.85],
+        showgrid: false,
+        zeroline: false,
+        range: [0, {{meta.r_max_bin}}+{{meta.r_bin_width}}]
+      },
+      yaxis: {
+        title: '{{meta.b_camera}} SN2',
+        domain: [0, 0.85],
+        showgrid: false,
+        zeroline: false,
+        range: [-0.3, {{meta.b_max_bin}}+{{meta.b_bin_width}}]
+      },
+      xaxis2: {
+        domain: [0.85, 1],
+        showgrid: false,
+        zeroline: false
+      },
+      yaxis2: {
+        domain: [0.85, 1],
+        showgrid: false,
+        zeroline: false
+      },
+      shapes: [
+        {
+          type: 'line',
+          xref: 'x1',
+          yref: 'y1',
+          x0: 0.0,
+          y0: {{meta.b_threshold}},
+          x1: {{meta.r_max_bin}},
+          y1: {{meta.b_threshold}},
+          line:{
+              color: 'red',
+              width: 2,
+              dash:'dot'
+          }
+        },
+        {
+          type: 'line',
+          xref: 'x2',
+          x0: 0.0,
+          y0: {{meta.b_threshold}},
+          x1: {{meta.b_max}},
+          y1: {{meta.b_threshold}},
+          line:{
+              color: 'red',
+              width: 2,
+              dash:'dot'
+          }
+        },
+        {
+          type: 'line',
+          xref: 'x1',
+          yref: 'y1',
+          y0: 0.0,
+          x0: {{meta.r_threshold}},
+          y1: {{meta.b_max_bin}},
+          x1: {{meta.r_threshold}},
+          line:{
+              color: 'red',
+              width: 2,
+              dash:'dot'
+          }
+        },
+        {
+          type: 'line',
+          yref: 'y2',
+          y0: 0.0,
+          x0: {{meta.r_threshold}},
+          y1: {{meta.r_max}},
+          x1: {{meta.r_threshold}},
+          line:{
+              color: 'red',
+              width: 2,
+              dash:'dot'
+          }
+        }
+      ]
+    };
+    Plotly.newPlot('bossChart', data, layout);
+
+    let ap = [];
+    for (i = 0; i < ap_mjds.length; i++) {
+      if(ap_mjds[i] > mjd_min){
+        ap.push(ap_full[i]);
+      }
+    }
+
+    var aphist = {
+      x: ap,
+      name: 'x density',
+      marker: {color: 'DodgerBlue'},
+      type: 'histogram',
+      xbins: {
+        end: {{meta.ap_max_bin}}, 
+        size: {{meta.ap_bin_width}}, 
+        start: 0.0
+      }
+    };
+    var aptext = {
+      x: [500, 3500],
+      y: [{{meta.ap_max}} - 200, {{meta.ap_max}} - 200],
+      mode: 'text',
+      name: 'stats',
+      text: ['{{meta.ap_bad}}', '{{meta.ap_good}}'],
+      textposition: 'top',
+      type: 'scatter',
+      textfont: fontCfg
+    };
+    var apdata = [aphist, aptext];
+
+    var aplayout = {
+      showlegend: false,
+      autosize: false,
+      width: 600,
+      margin: {t: 50},
+      hovermode: 'closest',
+      bargap: 0,
+      xaxis: {
+        title: 'apogee SN2',
+        showgrid: false,
+        zeroline: false,
+        range: [0, {{meta.ap_max_bin}}+{{meta.ap_bin_width}}]
+      },
+      shapes: [
+        {
+          type: 'line',
+          yref: 'y',
+          y0: 0.0,
+          x0: {{meta.ap_threshold}},
+          y1: {{meta.ap_max}},
+          x1: {{meta.ap_threshold}},
+          line:{
+              color: 'red',
+              width: 2,
+              dash:'dot'
+          }
+        }
+      ]
+    };
+
+    Plotly.newPlot('apogeeChart', apdata, aplayout);
   };
-
-  Plotly.newPlot('apogeeChart', apdata, aplayout);
-
+  reRenderHists({{meta.mjd_min}})
 </script>
 
 {% endblock body %}

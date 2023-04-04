@@ -16,15 +16,19 @@ efficiency_page = Blueprint("efficiency_page", __name__)
 async def index():
     """ Index page. """
 
-    b1, r1 = await wrapBlocking(bossSN)
-    ap = await wrapBlocking(apogeeSN)
+    b1, r1, boss_mjd = await wrapBlocking(bossSN)
+    ap, ap_mjd = await wrapBlocking(apogeeSN)
+
+    mjds = np.linspace(np.min(boss_mjd), np.max(boss_mjd), 20)
 
     meta = {"r_threshold": 3.0,
             "b_threshold": 1.5,
             "r_max_bin": 10,
             "b_max_bin": 4,
             "ap_threshold": 1012,
-            "ap_max_bin": 4000}
+            "ap_max_bin": 4000,
+            "mjd_min": np.min(boss_mjd),
+            "mjd_max": np.max(boss_mjd)}
     meta["b_bin_width"] = meta["b_max_bin"] / 20
     meta["r_bin_width"] = meta["r_max_bin"] / 20
     meta["ap_bin_width"] = meta["ap_max_bin"] / 20
@@ -49,7 +53,7 @@ async def index():
 
     b_good = np.array(b1) > meta["b_threshold"]
     r_good = np.array(r1) > meta["r_threshold"]
-    ap_good = np.array(ap) > meta["ap_threshold"] 
+    ap_good = np.array(ap) > meta["ap_threshold"]
 
     meta["b_good"] = len(np.where(b_good)[0])
     meta["r_good"] = len(np.where(r_good)[0])
@@ -69,6 +73,8 @@ async def index():
         "b1": b1,
         "r1": r1,
         "ap": ap,
+        "boss_mjd": boss_mjd,
+        "ap_mjd": ap_mjd,
         "meta": meta
         })
 

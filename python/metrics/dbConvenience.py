@@ -239,7 +239,7 @@ def bossSN():
         bcamera = opsdb.Camera.get(label="b1")
         rcamera = opsdb.Camera.get(label="r1")
 
-    sn2 = exp.select(b1.sn2.alias("b1"), r1.sn2.alias("r1"))\
+    sn2 = exp.select(b1.sn2.alias("b1"), r1.sn2.alias("r1"), cfg.epoch)\
              .join(b1).switch(exp)\
              .join(r1)\
              .switch(exp).join(cfg)\
@@ -251,11 +251,13 @@ def bossSN():
 
     b1 = list()
     r1 = list()
+    mjd = list()
     for d in sn2.dicts():
         b1.append(d["b1"])
         r1.append(d["r1"])
+        mjd.append(d["epoch"] - 2400000.5)
 
-    return b1, r1
+    return b1, r1, mjd
 
 
 def apogeeSN():
@@ -268,7 +270,7 @@ def apogeeSN():
     dbVersion = targetdb.Version.get(plan=rs_version)
     apcamera = opsdb.Camera.get(label="APOGEE")
 
-    sn2 = exp.select(cf.sn2)\
+    sn2 = exp.select(cf.sn2, cfg.epoch)\
              .join(cf)\
              .switch(exp).join(cfg)\
              .join(d2f, on=(d2f.design_id == cfg.design_id))\
@@ -277,7 +279,9 @@ def apogeeSN():
                     cad.label % '%bright%', f.version == dbVersion)
 
     ap = list()
+    mjd = list()
     for d in sn2.dicts():
         ap.append(d["sn2"])
+        mjd.append(d["epoch"] - 2400000.5)
 
-    return ap
+    return ap, mjd
