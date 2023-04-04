@@ -51,22 +51,22 @@ async def index():
     meta["r_max"] = np.max(Nr1)
     meta["ap_max"] = np.max(Nap)
 
-    b_good = np.array(b1) > meta["b_threshold"]
-    r_good = np.array(r1) > meta["r_threshold"]
-    ap_good = np.array(ap) > meta["ap_threshold"]
+    # b_good = np.array(b1) > meta["b_threshold"]
+    # r_good = np.array(r1) > meta["r_threshold"]
+    # ap_good = np.array(ap) > meta["ap_threshold"]
 
-    meta["b_good"] = len(np.where(b_good)[0])
-    meta["r_good"] = len(np.where(r_good)[0])
-    meta["ap_good"] = len(np.where(ap_good)[0])
+    # meta["b_good"] = len(np.where(b_good)[0])
+    # meta["r_good"] = len(np.where(r_good)[0])
+    # meta["ap_good"] = len(np.where(ap_good)[0])
 
-    meta["b_bad"] = len(np.where(~b_good)[0])
-    meta["r_bad"] = len(np.where(~r_good)[0])
-    meta["ap_bad"] = len(np.where(~ap_good)[0])
+    # meta["b_bad"] = len(np.where(~b_good)[0])
+    # meta["r_bad"] = len(np.where(~r_good)[0])
+    # meta["ap_bad"] = len(np.where(~ap_good)[0])
 
-    meta["r_and_b"] = len(np.where(np.logical_and(r_good, b_good))[0])
-    meta["r_not_b"] = len(np.where(np.logical_and(r_good, ~b_good))[0])
-    meta["b_not_r"] = len(np.where(np.logical_and(~r_good, b_good))[0])
-    meta["not_r_b"] = len(np.where(np.logical_and(~r_good, ~b_good))[0])
+    # meta["r_and_b"] = len(np.where(np.logical_and(r_good, b_good))[0])
+    # meta["r_not_b"] = len(np.where(np.logical_and(r_good, ~b_good))[0])
+    # meta["b_not_r"] = len(np.where(np.logical_and(~r_good, b_good))[0])
+    # meta["not_r_b"] = len(np.where(np.logical_and(~r_good, ~b_good))[0])
 
     templateDict = getTemplateDictBase()
     templateDict.update({
