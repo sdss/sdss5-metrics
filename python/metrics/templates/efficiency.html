@@ -12,20 +12,20 @@
 {% block body %}
 
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-lg-6">
     <input id="mjd_input" type="range" min="{{meta.mjd_min}}" max="{{meta.mjd_max}}" step="any" value="{{meta.mjd_min | int}}" oninput="reRenderHists(this.value)" style="vertical-align: middle">
     <p>Start MJD: <output id="mjd">{{meta.mjd_min | int}}</output></p>
 </div>
 </div>
 
 <div class="row">
-  <div class="col-md-4">
+  <div class="col-lg-6 col-md-8 col-sm-12">
     <div class="card">
       <div id="bossChart"></div>
     </div>
   </div>
 
-  <div class="col-md-4">
+  <div class="col-lg-6 col-md-8 col-sm-12">
     <div class="card">
       <div id="apogeeChart"></div>
     </div>
@@ -150,7 +150,7 @@
     };
     var xtext = {
       x: [1, 5],
-      y: [{{meta.r_max}} - 50, {{meta.r_max}} - 50],
+      y: [{{meta.r_max}} - 75, {{meta.r_max}} - 75],
       yaxis: 'y2',
       mode: 'text',
       name: 'stats',
@@ -160,7 +160,7 @@
       textfont: fontCfg
     };
     var ytext = {
-      x: [{{meta.r_max}} - 100, {{meta.r_max}} - 100],
+      x: [{{meta.b_max}} - 100, {{meta.b_max}} - 100],
       y: [-0.2, 3.5],
       xaxis: 'x2',
       mode: 'text',
@@ -176,6 +176,7 @@
       autosize: false,
       width: 600,
       height: 550,
+      title: "MJD > " + parseInt(mjd_min),
       margin: {t: 50},
       hovermode: 'closest',
       bargap: 0,
@@ -337,6 +338,7 @@
       autosize: false,
       width: 600,
       margin: {t: 50},
+      title: "MJD > " + parseInt(mjd_min),
       hovermode: 'closest',
       bargap: 0,
       xaxis: {
