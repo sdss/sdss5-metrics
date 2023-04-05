@@ -33,6 +33,12 @@
 </div>
 
 <script type="text/javascript">
+  const median = arr => {
+    const mid = Math.floor(arr.length / 2),
+      nums = [...arr].sort((a, b) => a - b);
+    return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
+  };
+
   const mjd = document.querySelector("#mjd")
   const input = document.querySelector("#mjd_input")
   input.addEventListener("input", (event) => {
@@ -86,6 +92,9 @@
 
     let b_bad = b1.length - b_good;
     let r_bad = r1.length - r_good;
+
+    let r_med = median(r1);
+    let b_med = median(b1);
 
    var scatter = {
       x: r1,
@@ -224,6 +233,19 @@
         },
         {
           type: 'line',
+          xref: 'x2',
+          x0: 0.0,
+          y0: b_med,
+          x1: {{meta.b_max}},
+          y1: b_med,
+          line:{
+              color: 'black',
+              width: 2,
+              dash:'dot'
+          }
+        },
+        {
+          type: 'line',
           xref: 'x1',
           yref: 'y1',
           y0: 0.0,
@@ -245,6 +267,19 @@
           x1: {{meta.r_threshold}},
           line:{
               color: 'red',
+              width: 2,
+              dash:'dot'
+          }
+        },
+        {
+          type: 'line',
+          yref: 'y2',
+          y0: 0.0,
+          x0: r_med,
+          y1: {{meta.r_max}},
+          x1: r_med,
+          line:{
+              color: 'black',
               width: 2,
               dash:'dot'
           }
@@ -271,6 +306,8 @@
         ap_bad += 1;
       }
     }
+
+    let ap_med = median(ap);
 
     var aphist = {
       x: ap,
@@ -318,6 +355,19 @@
           x1: {{meta.ap_threshold}},
           line:{
               color: 'red',
+              width: 2,
+              dash:'dot'
+          }
+        },
+        {
+          type: 'line',
+          yref: 'y',
+          y0: 0.0,
+          x0: ap_med,
+          y1: {{meta.ap_max}},
+          x1: ap_med,
+          line:{
+              color: 'black',
               width: 2,
               dash:'dot'
           }
