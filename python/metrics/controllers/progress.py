@@ -20,6 +20,8 @@ async def index():
     imgdir = current_app.config["STORE_FOLDER"]
     pngs = await wrapBlocking(listdir, imgdir)
 
+    pngs = [p for p in pngs if "png" in p ]
+
     templateDict.update({
         "pngs": pngs
     })

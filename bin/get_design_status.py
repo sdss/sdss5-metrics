@@ -1,17 +1,21 @@
+#!/usr/bin/env python
+
+import os
 import numpy as np
 from astropy.io import fits
 from astropy.table import Table
-from kronos import rs_version, observatory  # , wrapBlocking
-from kronos.scheduler import design_time
+# from kronos import rs_version, observatory  # , wrapBlocking
+# from kronos.scheduler import design_time
 from peewee import fn, JOIN, DoesNotExist
-from collections import defaultdict
-from operator import itemgetter
+# from collections import defaultdict
+# from operator import itemgetter
 
-from astropy.time import Time
+# from astropy.time import Time
 
 from sdssdb.peewee.sdss5db import opsdb, targetdb, database
 
-database.set_profile('apo5')
+rs_version = os.getenv("RS_VERSION")
+loc = os.getenv("OBSERVATORY").lower()
 
 dbCad = targetdb.Cadence
 
@@ -47,14 +51,10 @@ ndesigns = (d2s.select(Design.design_id)
                 .join(opsdb.CompletionStatus, JOIN.LEFT_OUTER)\
                 .where((Field.version == dbVersion) &
                        (targetdb.Version.plan == rs_version) & 
-                       (targetdb.Observatory.label == 'APO'))).count()
+                       (targetdb.Observatory.label == loc.upper()))).count()
 
 
 designs = np.zeros(ndesigns, dtype=design_dtype)
-
-print(ndesigns)
-
-
 
 
 dquery = d2s.select(d2s.mjd, 
@@ -79,7 +79,7 @@ dquery = d2s.select(d2s.mjd,
             .join(opsdb.CompletionStatus, JOIN.LEFT_OUTER)\
             .where((Field.version == dbVersion) &
                 (targetdb.Version.plan == rs_version) & 
-                (targetdb.Observatory.label == 'APO')).dicts()
+                (targetdb.Observatory.label == loc.upper())).dicts()
 
 castn = dict()
 for n in designs.dtype.names:
@@ -91,5 +91,13 @@ for indx, d in enumerate(dquery):
             designs[n][indx] = castn[n](d[n])
 
 t = Table(designs)
-t.write('designs.fits', format='fits', overwrite=True)
+
+
+
+filepath = '/home/sdss5/tmp/metrics_plots/'
+filepath = os.path.join(filepath, f"{rs_version}-{loc}")
+
+outpath = os.path.join(filepath, "designs.fits")
+
+t.write(outpath, format='fits', overwrite=True)
 

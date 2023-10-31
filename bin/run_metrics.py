@@ -1,3 +1,8 @@
+#!/usr/bin/env python
+# encoding: utf-8
+
+import os
+
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -13,10 +18,8 @@ import os
 from datetime import datetime
 import glob
 from scipy.interpolate import interp1d
-import requests
-import json
 
-plt.style.use(['seaborn-talk','seaborn-white', 'seaborn-ticks']) 
+plt.style.use(['seaborn-v0_8-talk','seaborn-v0_8-white', 'seaborn-v0_8-ticks']) 
 plt.rcParams['axes.linewidth'] = 2
 plt.rcParams['axes.labelsize'] = 20
 
@@ -72,18 +75,19 @@ def find_means(data):
     
     return xnew-15.,f,f_mean, f_25, f_50, f_75  
 
-filepath = '/Users/jbochanski/Dropbox/'
-field_filename = 'zeta-0-apo-fields-0.fits'
-#target_filename = 'obsTargets-epsilon-8-core-0-apo.fits'
-#target_filename = 'obsTargets-zeta-0-apo.fits'
-observations_filename = 'zeta-0-apo-observations-0.fits'
+rs_version = os.getenv("RS_VERSION")
+loc = os.getenv("OBSERVATORY").lower()
 
-apo_designs = '/Users/jbochanski/Dropbox/designs.fits'
+filepath = '/home/sdss5/tmp/metrics_plots/'
+filepath = os.path.join(filepath, f"{rs_version}-{loc}")
+field_filename = f'{rs_version}-{loc}-fields-0.fits'
+field_filename = os.path.join(filepath, field_filename)
+observations_filename = f'{rs_version}-{loc}-observations-0.fits'
+observations_filename = os.path.join(filepath, observations_filename)
 
-run_name = field_filename.split('.')[0]+'_'
+apo_designs = os.path.join(filepath,'designs.fits')
 
-plotfilepath = filepath+'metrics_plots/'+run_name+'w_mc_plan/'
-print(plotfilepath)
+plotfilepath = filepath + "/"
 
 # Check whether the specified path exists or not
 isExist = os.path.exists(plotfilepath)
@@ -95,11 +99,11 @@ if not isExist:
   print('made new directory')
 
 
-hdu = fits.open(str(filepath+field_filename))
+hdu = fits.open(field_filename)
 hdu.verify('fix')
 field_data = hdu[1].data
 
-hdu = fits.open(str(filepath+observations_filename))
+hdu = fits.open(observations_filename)
 hdu.verify('fix')
 obs_data = hdu[1].data
 
@@ -170,6 +174,9 @@ plt.close()
 #designs by cadence
 labels, counts = np.unique(obs_data['cadence'],return_counts=True)  #all of the cadences
 labels1, counts1 = np.unique(first_year_data['cadence'],return_counts=True)  #cadences from the first year
+
+labels = np.array([c[:c.index("_v")] for c in labels])
+labels1 = np.array([c[:c.index("_v")] for c in labels1])
 
 fig, (ax1) = plt.subplots(1, 1, figsize=(20,10))
 
@@ -326,15 +333,15 @@ plt.tight_layout()
 plt.savefig(str(plotfilepath + 'RM_cumulative_designs_during_year1.png'), dpi=300)
 plt.close()
 
-filepath = '/Users/jbochanski/Dropbox/weather_mc/'
-field_filenames = glob.glob(filepath+'zeta*fits')
+# filepath = '/Users/jbochanski/Dropbox/weather_mc/'
+# field_filenames = glob.glob(filepath+'zeta*fits')
 
-data = read_field_files(field_filenames)
-xnew, f,f_mean,  f_25, f_50, f_75 = find_means(data)
+# data = read_field_files(field_filenames)
+# xnew, f,f_mean,  f_25, f_50, f_75 = find_means(data)
 
-plt.plot(xnew, f_50, linewidth=4, label='Median')
-plt.fill_between(xnew, f_25, f_75, alpha=0.3, label='25-75%')
-plt.fill_between(xnew, np.quantile(f, 0.1, axis=0), np.quantile(f, 0.9, axis=0), alpha=0.1, label='10-90%')
+# plt.plot(xnew, f_50, linewidth=4, label='Median')
+# plt.fill_between(xnew, f_25, f_75, alpha=0.3, label='25-75%')
+# plt.fill_between(xnew, np.quantile(f, 0.1, axis=0), np.quantile(f, 0.9, axis=0), alpha=0.1, label='10-90%')
 
 g = (design_data['completion_status'] == 'done')
 design_mjd = design_data[g]['mjd']
@@ -357,11 +364,11 @@ plt.close()
 
 
 
-x_t = Time(xnew, format='mjd')
-scale = .70
-plt.plot(x_t.to_datetime(), f_50*scale, linewidth=4, label='Median')
-plt.fill_between(x_t.to_datetime(), f_25*scale, f_75*scale, alpha=0.3, label='25-75%')
-plt.fill_between(x_t.to_datetime(), np.quantile(f, 0.1, axis=0)*scale, np.quantile(f, 0.9, axis=0)*scale, alpha=0.1, label='10-90%')
+# x_t = Time(xnew, format='mjd')
+# scale = .70
+# plt.plot(x_t.to_datetime(), f_50*scale, linewidth=4, label='Median')
+# plt.fill_between(x_t.to_datetime(), f_25*scale, f_75*scale, alpha=0.3, label='25-75%')
+# plt.fill_between(x_t.to_datetime(), np.quantile(f, 0.1, axis=0)*scale, np.quantile(f, 0.9, axis=0)*scale, alpha=0.1, label='10-90%')
 
 
 g = (design_data['completion_status'] == 'done')
