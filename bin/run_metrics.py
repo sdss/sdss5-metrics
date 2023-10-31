@@ -10,13 +10,13 @@ from astropy.io import fits
 from astropy.time import Time
 import astropy.coordinates as coord
 import astropy.units as un
-from astropy.visualization import LogStretch
-from matplotlib.colors import LinearSegmentedColormap
-from astropy.visualization.mpl_normalize import ImageNormalize
+# from astropy.visualization import LogStretch
+# from matplotlib.colors import LinearSegmentedColormap
+# from astropy.visualization.mpl_normalize import ImageNormalize
 import matplotlib as mpl
 import os
 from datetime import datetime
-import glob
+# import glob
 from scipy.interpolate import interp1d
 
 plt.style.use(['seaborn-v0_8-talk','seaborn-v0_8-white', 'seaborn-v0_8-ticks']) 
@@ -111,7 +111,7 @@ hdu = fits.open(apo_designs)
 hdu.verify('fix')
 design_data = hdu[1].data
 
-min_mjd = np.min(obs_data['mjd'])
+min_mjd = np.min(design_data['mjd'])
 g = (obs_data['mjd'] < min_mjd + 365)  #look at the first year of data
 
 
@@ -123,21 +123,43 @@ design_mjd = design_data[g]['mjd']
 design_count = np.array(range(len(design_mjd)))+1
 design_t = Time(np.sort(design_mjd), format='mjd')
 
-count = np.array(range(len(first_year_data['mjd'])))+1
-t = Time(np.sort(first_year_mjd), format='mjd')
+time_file = '/home/sdss5/tmp/metrics_plots/time_avail_apo.csv'
+time_array = np.genfromtxt(time_file, names=True, delimiter=",", dtype=None, encoding="UTF-8")
+
+dark_design = 23 / 60
+bright_design = 21 / 60
+
+bright_factor = 1.1
+dark_factor = 1.8
+
+end_date = np.max(design_data['mjd'])
+
+subset = time_array[time_array["mjd"] < end_date]
+
+max_bright = subset["cum_bright"] / bright_design / 2
+adjusted_bright = max_bright / bright_factor
+max_dark = subset["cum_dark"] / dark_design / 2
+adjusted_dark = max_dark / dark_factor
+
+total = max_bright + max_dark
+realistic_total = adjusted_bright + adjusted_dark
+
+
+# count = np.array(range(len(first_year_data['mjd'])))+1
+t = Time(np.sort(subset["mjd"]), format='mjd')
 
 now = datetime.now()
-plt.plot(t.to_datetime(), count, '.', label='baseline')
+plt.plot(t.to_datetime(), realistic_total, '.', label='baseline')
 plt.plot(design_t.to_datetime(), design_count, '.', label='Observed')
 plt.xlabel('Date - First Year of SDSS V at APO')
 plt.ylabel('Cumulative Number of Designs')
 plt.legend()
 plt.title('Designs as of ' + now.strftime("%m/%d/%Y %H:%M:%S"))
 plt.tight_layout()
-plt.savefig(str(plotfilepath + 'cumulative_designs_during_year1.png'), dpi=300)
+plt.savefig(str(plotfilepath + 'cumulative_designs_today.png'), dpi=300)
 plt.close()
 
-plt.plot(np.sort(first_year_mjd), count, '.', label='baseline')
+plt.plot(subset["mjd"], realistic_total, '.', label='baseline')
 plt.plot(np.sort(design_mjd), design_count, '.', label='Observed')
 plt.xlabel('Date - First Year of SDSS V at APO')
 plt.ylabel('Cumulative Number of Designs')
@@ -145,7 +167,7 @@ plt.legend()
 
 plt.title('Designs as of ' + now.strftime("%m/%d/%Y %H:%M:%S"))
 plt.tight_layout()
-plt.savefig(str(plotfilepath + 'cumulative_designs_during_year1_mjd.png'), dpi=300)
+plt.savefig(str(plotfilepath + 'cumulative_designs_today_mjd.png'), dpi=300)
 plt.close()
 
 buffer_mjd = 10.  
@@ -156,19 +178,19 @@ max_mjd_plot = max(design_mjd) + 4*buffer_mjd
 
 
 
-plt.plot(t.to_datetime(), count, '.', label='baseline')
-plt.plot(design_t.to_datetime(), design_count, '.', label='Observed')
+# plt.plot(t.to_datetime(), count, '.', label='baseline')
+# plt.plot(design_t.to_datetime(), design_count, '.', label='Observed')
 
-plt.xlabel('Date - First Year of SDSS V at APO')
-plt.ylabel('Cumulative Number of Designs')
-plt.xlim([Time(min_mjd_plot, format='mjd').to_datetime(),Time(max_mjd_plot, format='mjd').to_datetime()])
-plt.ylim(-10, max(design_count)*buffer_count)
-plt.legend()
-plt.title('Designs as of ' + now.strftime("%m/%d/%Y %H:%M:%S"))
-plt.gcf().autofmt_xdate()
-plt.tight_layout()
-plt.savefig(str(plotfilepath + 'cumulative_designs_during_year1_zoom.png'), dpi=300)
-plt.close()
+# plt.xlabel('Date - First Year of SDSS V at APO')
+# plt.ylabel('Cumulative Number of Designs')
+# plt.xlim([Time(min_mjd_plot, format='mjd').to_datetime(),Time(max_mjd_plot, format='mjd').to_datetime()])
+# plt.ylim(-10, max(design_count)*buffer_count)
+# plt.legend()
+# plt.title('Designs as of ' + now.strftime("%m/%d/%Y %H:%M:%S"))
+# plt.gcf().autofmt_xdate()
+# plt.tight_layout()
+# plt.savefig(str(plotfilepath + 'cumulative_designs_during_year1_zoom.png'), dpi=300)
+# plt.close()
 
 
 #designs by cadence
