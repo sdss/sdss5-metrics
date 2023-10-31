@@ -6,16 +6,49 @@
   <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
   <title>Efficiency</title>
 
-  <script src='https://cdn.plot.ly/plotly-2.18.2.min.js'>
+  <script src='https://cdn.plot.ly/plotly-2.18.2.min.js'></script>
 {% endblock head %}
 
 {% block body %}
 
 <div class="row">
+  <div class="col-lg-6 col-md-8 col-sm-12">
+    <div class="card">
+      <form autocomplete="off" action="">
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label for="darkLength">Dark Length</label>
+            <input id="darkLength" type="text" name="darkLength" value="23">
+            <label for="brightLength">Bright Length</label>
+            <input id="brightLength" type="text" name="brightLength" value="21">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label for="darkEfficiency">Dark Efficiency</label>
+            <input id="darkEfficiency" type="text" name="darkEfficiency" value="1.9">
+            <label for="brightEfficiency">Bright Efficiency</label>
+            <input id="brightEfficiency" type="text" name="brightEfficiency" value="1.1">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label for="weather">Weather</label>
+            <input id="weather" type="text" name="weather" value="0.5">
+          </div>
+        </div>
+        <input type="button" name="button" value="Update Scaling" onClick="reDrawModel(this.form)">
+      </form>
+      <div id="cumulativeChart"></div>
+    </div>
+  </div>
+</div>
+
+<div class="row">
   <div class="col-lg-6">
     <input id="mjd_input" type="range" min="{{meta.mjd_min}}" max="{{meta.mjd_max}}" step="any" value="{{meta.mjd_min | int}}" oninput="reRenderHists(this.value)" style="vertical-align: middle">
     <p>Start MJD: <output id="mjd">{{meta.mjd_min | int}}</output></p>
-</div>
+  </div>
 </div>
 
 <div class="row">
@@ -96,7 +129,7 @@
     let r_med = median(r1);
     let b_med = median(b1);
 
-   var scatter = {
+    var scatter = {
       x: r1,
       y: b1,
       mode: 'markers',
@@ -379,7 +412,75 @@
 
     Plotly.newPlot('apogeeChart', apdata, aplayout);
   };
-  reRenderHists({{meta.mjd_min}})
+  reRenderHists({{meta.mjd_min}});
+
+  var cumulativeLayout = {
+      title: "Observing Progress VS Numerical Model",
+      hovermode: 'closest',
+      xaxis: {
+        title: 'MJD',
+        tickformat: ',.0f' 
+      },
+      yaxis: {
+        title: 'Designs Observed',
+      }
+    };
+
+  var hist = {
+    x: {{design_mjds | tojson}},
+    y: {{design_done | tojson}},
+    type: 'scatter',
+    name: 'observed'
+  };
+
+  var darkLength = 23. / 60.;
+  var brightLength = 21. / 60.;
+  var darkEfficiency = 1.9;
+  var brightEfficiency  = 1.1;
+  var weather = 0.5;
+
+  const dark_time = {{dark_time | tojson}};
+  const bright_time = {{bright_time | tojson}};
+
+  let cumulative_time = [];
+  for(let i = 0; i < dark_time.length; i++){
+    let dark_scaled = dark_time[i] / darkLength * weather / darkEfficiency;
+    let bright_scaled = bright_time[i] / brightLength * weather / brightEfficiency;
+    cumulative_time.push(dark_scaled + bright_scaled);
+  }
+
+  var cumulative_mjds = {{cumulative_mjds | tojson}}
+  var model = {
+    x: cumulative_mjds,
+    y: cumulative_time,
+    type: 'scatter',
+    name: 'model'
+  };
+
+  Plotly.newPlot('cumulativeChart', [hist, model], cumulativeLayout);
+
+  function reDrawModel(form){
+    darkLength = parseFloat(form.darkLength.value) / 60.;
+    brightLength = parseFloat(form.brightLength.value) / 60.;
+    darkEfficiency = parseFloat(form.darkEfficiency.value);
+    brightEfficiency  = parseFloat(form.brightEfficiency.value);
+    weather = parseFloat(form.weather.value);
+    let new_cumulative_time = [];
+    for(let i = 0; i < dark_time.length; i++){
+      let dark_scaled = dark_time[i] / darkLength * weather / darkEfficiency;
+      let bright_scaled = bright_time[i] / brightLength * weather / brightEfficiency;
+      new_cumulative_time.push(dark_scaled + bright_scaled);
+    }
+    var newModel = {
+      x: cumulative_mjds,
+      y: new_cumulative_time,
+      type: 'scatter',
+      name: 'model'
+    };
+
+    Plotly.newPlot('cumulativeChart', [hist, newModel], cumulativeLayout);
+    };
+
 </script>
 
 {% endblock body %}

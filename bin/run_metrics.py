@@ -136,6 +136,7 @@ end_date = np.max(design_data['mjd'])
 
 subset = time_array[time_array["mjd"] < end_date]
 
+# divided by 2 again for weather
 max_bright = subset["cum_bright"] / bright_design / 2
 adjusted_bright = max_bright / bright_factor
 max_dark = subset["cum_dark"] / dark_design / 2

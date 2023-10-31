@@ -1,7 +1,10 @@
 #!/usr/bin/env/python
 
+import os
+
 from quart import render_template, Blueprint, request
 
+from astropy.io import fits
 import numpy as np
 
 from metrics import wrapBlocking, observatory
@@ -68,6 +71,36 @@ async def index():
     # meta["b_not_r"] = len(np.where(np.logical_and(~r_good, b_good))[0])
     # meta["not_r_b"] = len(np.where(np.logical_and(~r_good, ~b_good))[0])
 
+    rs_version = os.getenv("RS_VERSION")
+    loc = os.getenv("OBSERVATORY").lower()
+    file_loc = f'/home/sdss5/tmp/metrics_plots/{rs_version}-{loc}/designs.fits'
+    hdu = await wrapBlocking(fits.open, file_loc)
+    hdu.verify('fix')
+    design_data = hdu[1].data
+
+    g = (design_data['completion_status'] == 'done')
+    design_mjd = design_data[g]['mjd']
+    design_count = np.array(range(len(design_mjd)))+1
+    design_count = [float(i) for i in design_count]
+    design_t = np.sort(design_mjd)
+    design_t = [float(i) for i in design_t]
+
+    end_date = np.max(design_data['mjd'])
+
+    time_file = '/home/sdss5/tmp/metrics_plots/time_avail_apo.csv'
+    time_array = await wrapBlocking(np.genfromtxt, time_file, names=True, 
+                                    delimiter=",", dtype=None,
+                                    encoding="UTF-8")
+    
+    subset = time_array[time_array["mjd"] < end_date]
+
+    bright_time = subset["cum_bright"]
+    bright_time = [float(i) for i in bright_time]
+    dark_time = subset["cum_dark"]
+    dark_time = [float(i) for i in dark_time]
+    cumulative_mjds = subset["mjd"]
+    cumulative_mjds = [float(i) for i in cumulative_mjds]
+
     templateDict = getTemplateDictBase()
     templateDict.update({
         "b1": b1,
@@ -75,7 +108,12 @@ async def index():
         "ap": ap,
         "boss_mjd": boss_mjd,
         "ap_mjd": ap_mjd,
-        "meta": meta
+        "meta": meta,
+        "design_done": design_count,
+        "design_mjds": design_t,
+        "dark_time": dark_time,
+        "bright_time": bright_time,
+        "cumulative_mjds": cumulative_mjds
         })
 
     return await render_template("efficiency.html", **templateDict)
