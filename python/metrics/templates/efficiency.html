@@ -32,9 +32,13 @@
           </div>
         </div>
         <div class="form-row">
-          <div class="form-group col-md-12">
+          <div class="form-group col-md-6">
             <label for="weather">Weather</label>
             <input id="weather" type="text" name="weather" value="0.5">
+          </div>
+          <div class="form-group col-md-6">
+            <label for="mjdStart">Model MJD Start</label>
+            <input id="mjdStart" type="text" name="mjdStart" value="{{meta.mjd_min | int}}">
           </div>
         </div>
         <input type="button" name="button" value="Update Scaling" onClick="reDrawModel(this.form)">
@@ -426,8 +430,10 @@
       }
     };
 
+  var design_mjds = {{design_mjds | tojson}}
+
   var hist = {
-    x: {{design_mjds | tojson}},
+    x: design_mjds,
     y: {{design_done | tojson}},
     type: 'scatter',
     name: 'observed'
@@ -465,11 +471,32 @@
     darkEfficiency = parseFloat(form.darkEfficiency.value);
     brightEfficiency  = parseFloat(form.brightEfficiency.value);
     weather = parseFloat(form.weather.value);
+    var mjdStart = parseFloat(form.mjdStart.value);
+    var useHist = [];
+
+    for(let i = 0; i < cumulative_mjds.length; i++){
+      let tmpHist = 0;
+      if(cumulative_mjds[i] <= mjdStart){
+        for(let j = 0; j < design_mjds.length; j++){
+          if(design_mjds[j] <= cumulative_mjds[i]){
+            tmpHist += 1;
+          }
+        }
+    }
+      useHist.push(tmpHist);
+    }
     let new_cumulative_time = [];
+    let modelOffset = 0;
     for(let i = 0; i < dark_time.length; i++){
       let dark_scaled = dark_time[i] / darkLength * weather / darkEfficiency;
       let bright_scaled = bright_time[i] / brightLength * weather / brightEfficiency;
-      new_cumulative_time.push(dark_scaled + bright_scaled);
+      if(cumulative_mjds[i] <= mjdStart){
+        new_cumulative_time.push(useHist[i])
+        modelOffset = dark_scaled + bright_scaled - useHist[i]
+      }
+      else{
+        new_cumulative_time.push(dark_scaled + bright_scaled - modelOffset);
+      }
     }
     var newModel = {
       x: cumulative_mjds,
