@@ -87,7 +87,7 @@ async def index():
 
     end_date = np.max(design_data['mjd'])
 
-    time_file = '/home/sdss5/tmp/metrics_plots/time_avail_apo.csv'
+    time_file = f'/home/sdss5/tmp/metrics_plots/time_avail_{loc}.csv'
     time_array = await wrapBlocking(np.genfromtxt, time_file, names=True, 
                                     delimiter=",", dtype=None,
                                     encoding="UTF-8")

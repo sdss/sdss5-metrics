@@ -123,14 +123,14 @@ design_mjd = design_data[g]['mjd']
 design_count = np.array(range(len(design_mjd)))+1
 design_t = Time(np.sort(design_mjd), format='mjd')
 
-time_file = '/home/sdss5/tmp/metrics_plots/time_avail_apo.csv'
+time_file = f'/home/sdss5/tmp/metrics_plots/time_avail_{loc}.csv'
 time_array = np.genfromtxt(time_file, names=True, delimiter=",", dtype=None, encoding="UTF-8")
 
 dark_design = 23 / 60
 bright_design = 21 / 60
 
 bright_factor = 1.1
-dark_factor = 1.8
+dark_factor = 1.9
 
 end_date = np.max(design_data['mjd'])
 
@@ -152,7 +152,7 @@ t = Time(np.sort(subset["mjd"]), format='mjd')
 now = datetime.now()
 plt.plot(t.to_datetime(), realistic_total, '.', label='baseline')
 plt.plot(design_t.to_datetime(), design_count, '.', label='Observed')
-plt.xlabel('Date - First Year of SDSS V at APO')
+plt.xlabel(f'Date - First Year of SDSS V at {loc.upper()}')
 plt.ylabel('Cumulative Number of Designs')
 plt.legend()
 plt.title('Designs as of ' + now.strftime("%m/%d/%Y %H:%M:%S"))
@@ -162,7 +162,7 @@ plt.close()
 
 plt.plot(subset["mjd"], realistic_total, '.', label='baseline')
 plt.plot(np.sort(design_mjd), design_count, '.', label='Observed')
-plt.xlabel('Date - First Year of SDSS V at APO')
+plt.xlabel(f'Date - First Year of SDSS V at {loc.upper()}')
 plt.ylabel('Cumulative Number of Designs')
 plt.legend()
 
@@ -182,7 +182,7 @@ max_mjd_plot = max(design_mjd) + 4*buffer_mjd
 # plt.plot(t.to_datetime(), count, '.', label='baseline')
 # plt.plot(design_t.to_datetime(), design_count, '.', label='Observed')
 
-# plt.xlabel('Date - First Year of SDSS V at APO')
+# plt.xlabel(f'Date - First Year of SDSS V at {loc.upper()}')
 # plt.ylabel('Cumulative Number of Designs')
 # plt.xlim([Time(min_mjd_plot, format='mjd').to_datetime(),Time(max_mjd_plot, format='mjd').to_datetime()])
 # plt.ylim(-10, max(design_count)*buffer_count)
@@ -295,7 +295,7 @@ t = Time(np.sort(first_year_mjd[aqmes_med]), format='mjd')
 
 plt.plot(t.to_datetime(), count, '.', label='baseline')
 plt.plot(design_t.to_datetime(), design_count, '.', label='Observed')
-plt.xlabel('Date - First Year of SDSS V at APO')
+plt.xlabel(f'Date - First Year of SDSS V at {loc.upper()}')
 plt.title('AQMES Med Designs as of ' + now.strftime("%m/%d/%Y %H:%M:%S"))
 plt.xlim([Time(min_mjd_plot, format='mjd').to_datetime(),Time(max_mjd_plot, format='mjd').to_datetime()])
 plt.ylim(-10, max(design_count)*buffer_count)
@@ -320,7 +320,7 @@ t = Time(np.sort(first_year_mjd[aqmes_wide]), format='mjd')
 
 plt.plot(t.to_datetime(), count, '.', label='baseline')
 plt.plot(design_t.to_datetime(), design_count, '.', label='Observed')
-plt.xlabel('Date - First Year of SDSS V at APO')
+plt.xlabel(f'Date - First Year of SDSS V at {loc.upper()}')
 plt.title('AQMES Wide Designs as of ' + now.strftime("%m/%d/%Y %H:%M:%S"))
 plt.xlim([Time(min_mjd_plot, format='mjd').to_datetime(),Time(max_mjd_plot, format='mjd').to_datetime()])
 plt.ylim(-10, max(design_count)*buffer_count)
@@ -344,7 +344,7 @@ t = Time(np.sort(first_year_mjd[rm]), format='mjd')
 
 plt.plot(t.to_datetime(), count, '.', label='baseline')
 plt.plot(design_t.to_datetime(), design_count, '.', label='Observed')
-plt.xlabel('Date - First Year of SDSS V at APO')
+plt.xlabel(f'Date - First Year of SDSS V at {loc.upper()}')
 plt.title('RM Designs as of ' + now.strftime("%m/%d/%Y %H:%M:%S"))
 plt.xlim([Time(min_mjd_plot, format='mjd').to_datetime(),Time(max_mjd_plot, format='mjd').to_datetime()])
 plt.ylim(-10, max(design_count)*buffer_count)
