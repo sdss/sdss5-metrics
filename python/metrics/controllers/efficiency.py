@@ -101,6 +101,25 @@ async def index():
     cumulative_mjds = subset["mjd"]
     cumulative_mjds = [float(i) for i in cumulative_mjds]
 
+    if loc == "apo":
+        model_params = {
+            "dark_length": "23",
+            "bright_length": "21",
+            "dark_efficiency": "1.1",
+            "bright_efficiency": "1.0",
+            "weather": 0.5,
+            "mjd_start": 60210
+        }
+    else:
+        model_params = {
+            "dark_length": "24",
+            "bright_length": "21",
+            "dark_efficiency": "1.2",
+            "bright_efficiency": "1.0",
+            "weather": 0.7,
+            "mjd_start": 60000
+        }
+
     templateDict = getTemplateDictBase()
     templateDict.update({
         "b1": b1,
@@ -113,7 +132,8 @@ async def index():
         "design_mjds": design_t,
         "dark_time": dark_time,
         "bright_time": bright_time,
-        "cumulative_mjds": cumulative_mjds
+        "cumulative_mjds": cumulative_mjds,
+        "model_params": model_params
         })
 
     return await render_template("efficiency.html", **templateDict)

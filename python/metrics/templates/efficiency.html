@@ -14,31 +14,32 @@
 <div class="row">
   <div class="col-lg-6 col-md-8 col-sm-12">
     <div class="card">
-      <form autocomplete="off" action="">
+      <form autocomplete="off" action="" id="redoParams">
         <div class="form-row">
           <div class="form-group col-md-12">
             <label for="darkLength">Dark Length</label>
-            <input id="darkLength" type="text" name="darkLength" value="23">
+            <input id="darkLength" type="text" name="darkLength" value="{{model_params.dark_length}}">
             <label for="brightLength">Bright Length</label>
-            <input id="brightLength" type="text" name="brightLength" value="21">
+            <input id="brightLength" type="text" name="brightLength" value="{{model_params.bright_length}}">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group col-md-12">
             <label for="darkEfficiency">Dark Efficiency</label>
-            <input id="darkEfficiency" type="text" name="darkEfficiency" value="1.9">
+            <input id="darkEfficiency" type="text" name="darkEfficiency" value="{{model_params.dark_efficiency}}">
             <label for="brightEfficiency">Bright Efficiency</label>
-            <input id="brightEfficiency" type="text" name="brightEfficiency" value="1.1">
+            <input id="brightEfficiency" type="text" name="brightEfficiency" value="{{model_params.bright_efficiency}}">
           </div>
         </div>
         <div class="form-row">
           <div class="form-group col-md-6">
             <label for="weather">Weather</label>
-            <input id="weather" type="text" name="weather" value="0.5">
+            <input id="weather" type="text" name="weather" value="{{model_params.weather}}">
           </div>
           <div class="form-group col-md-6">
             <label for="mjdStart">Model MJD Start</label>
-            <input id="mjdStart" type="text" name="mjdStart" value="{{meta.mjd_min | int}}">
+            <!-- <input id="mjdStart" type="text" name="mjdStart" value="{{meta.mjd_min | int}}"> -->
+            <input id="mjdStart" type="text" name="mjdStart" value="{{model_params.mjd_start}}">
           </div>
         </div>
         <input type="button" name="button" value="Update Scaling" onClick="reDrawModel(this.form)">
@@ -441,29 +442,29 @@
 
   var darkLength = 23. / 60.;
   var brightLength = 21. / 60.;
-  var darkEfficiency = 1.9;
+  var darkEfficiency = 1.1;
   var brightEfficiency  = 1.1;
   var weather = 0.5;
 
   const dark_time = {{dark_time | tojson}};
   const bright_time = {{bright_time | tojson}};
 
-  let cumulative_time = [];
-  for(let i = 0; i < dark_time.length; i++){
-    let dark_scaled = dark_time[i] / darkLength * weather / darkEfficiency;
-    let bright_scaled = bright_time[i] / brightLength * weather / brightEfficiency;
-    cumulative_time.push(dark_scaled + bright_scaled);
-  }
+  // let cumulative_time = [];
+  // for(let i = 0; i < dark_time.length; i++){
+  //   let dark_scaled = dark_time[i] / darkLength * weather / darkEfficiency;
+  //   let bright_scaled = bright_time[i] / brightLength * weather / brightEfficiency;
+  //   cumulative_time.push(dark_scaled + bright_scaled);
+  // }
 
   var cumulative_mjds = {{cumulative_mjds | tojson}}
-  var model = {
-    x: cumulative_mjds,
-    y: cumulative_time,
-    type: 'scatter',
-    name: 'model'
-  };
+  // var model = {
+  //   x: cumulative_mjds,
+  //   y: cumulative_time,
+  //   type: 'scatter',
+  //   name: 'model'
+  // };
 
-  Plotly.newPlot('cumulativeChart', [hist, model], cumulativeLayout);
+  // Plotly.newPlot('cumulativeChart', [hist, model], cumulativeLayout);
 
   function reDrawModel(form){
     darkLength = parseFloat(form.darkLength.value) / 60.;
@@ -507,6 +508,9 @@
 
     Plotly.newPlot('cumulativeChart', [hist, newModel], cumulativeLayout);
     };
+
+    let startForm = document.getElementById("redoParams");
+    reDrawModel(startForm);
 
 </script>
 
