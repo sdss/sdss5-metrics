@@ -115,7 +115,7 @@ async def index():
             "dark_efficiency": "1.2",
             "bright_efficiency": "1.0",
             "weather": 0.7,
-            "mjd_start": 60000
+            "mjd_start": 60200
         }
 
     templateDict = getTemplateDictBase()
