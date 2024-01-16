@@ -432,10 +432,11 @@
     };
 
   var design_mjds = {{design_mjds | tojson}}
+  var design_done = {{design_done | tojson}}
 
   var hist = {
     x: design_mjds,
-    y: {{design_done | tojson}},
+    y: design_done,
     type: 'scatter',
     name: 'observed'
   };
@@ -480,10 +481,12 @@
       if(cumulative_mjds[i] <= mjdStart){
         for(let j = 0; j < design_mjds.length; j++){
           if(design_mjds[j] <= cumulative_mjds[i]){
-            tmpHist += 1;
+            tmpHist = design_done[j];
+
           }
+          else{ break; }
         }
-    }
+      }
       useHist.push(tmpHist);
     }
     let new_cumulative_time = [];

@@ -62,9 +62,6 @@ def fieldQueryDone(cadence=None):
 
 
 def designQueryMjd(cadence=None):
-    """query targetdb for fields matching parameters
-    """
-
     dbCad = targetdb.Cadence
 
     Field = targetdb.Field
@@ -285,3 +282,22 @@ def apogeeSN():
         mjd.append(d["epoch"] - 2400000.5)
 
     return ap, mjd
+
+
+def designQueryMjd(cadence=None):
+    Field = targetdb.Field
+    dbVersion = targetdb.Version.get(plan=rs_version)
+    Design = targetdb.Design
+    d2s = opsdb.DesignToStatus
+    doneStatus = opsdb.CompletionStatus.get(label="done").pk
+    d2f = targetdb.DesignToField
+
+    dquery = d2s.select(d2s.mjd)\
+                .join(Design)\
+                .join(d2f, on=(Design.design_id == d2f.design_id))\
+                .join(Field, on=(Field.pk == d2f.field_pk))\
+                .where(d2s.completion_status_pk == doneStatus,
+                       Field.version == dbVersion).tuples()
+
+    return [d[0] for d in dquery]
+

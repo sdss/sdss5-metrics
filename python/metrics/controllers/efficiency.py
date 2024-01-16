@@ -8,7 +8,7 @@ from astropy.io import fits
 import numpy as np
 
 from metrics import wrapBlocking, observatory
-from metrics.dbConvenience import bossSN, apogeeSN
+from metrics.dbConvenience import bossSN, apogeeSN, designQueryMjd
 
 from . import getTemplateDictBase
 
@@ -71,21 +71,19 @@ async def index():
     # meta["b_not_r"] = len(np.where(np.logical_and(~r_good, b_good))[0])
     # meta["not_r_b"] = len(np.where(np.logical_and(~r_good, ~b_good))[0])
 
-    rs_version = os.getenv("RS_VERSION")
+    # rs_version = os.getenv("RS_VERSION")
     loc = os.getenv("OBSERVATORY").lower()
-    file_loc = f'/home/sdss5/tmp/metrics_plots/{rs_version}-{loc}/designs.fits'
-    hdu = await wrapBlocking(fits.open, file_loc)
-    hdu.verify('fix')
-    design_data = hdu[1].data
 
-    g = (design_data['completion_status'] == 'done')
-    design_mjd = design_data[g]['mjd']
-    design_count = np.array(range(len(design_mjd)))+1
-    design_count = [float(i) for i in design_count]
-    design_t = np.sort(design_mjd)
-    design_t = [float(i) for i in design_t]
+    doneMjds = await wrapBlocking(designQueryMjd)
 
-    end_date = np.max(design_data['mjd'])
+    start_date = np.min(doneMjds)
+    end_date = np.max(doneMjds)
+
+    design_mjd = np.arange(start_date, end_date, 1)
+
+    design_mjd = [int(m) for m in design_mjd]
+
+    design_count = [len(np.where(np.array(doneMjds) < m)[0]) for m in design_mjd]
 
     time_file = f'/home/sdss5/tmp/metrics_plots/time_avail_{loc}.csv'
     time_array = await wrapBlocking(np.genfromtxt, time_file, names=True, 
@@ -129,7 +127,7 @@ async def index():
         "ap_mjd": ap_mjd,
         "meta": meta,
         "design_done": design_count,
-        "design_mjds": design_t,
+        "design_mjds": design_mjd,
         "dark_time": dark_time,
         "bright_time": bright_time,
         "cumulative_mjds": cumulative_mjds,
