@@ -42,6 +42,15 @@
             <input id="mjdStart" type="text" name="mjdStart" value="{{model_params.mjd_start}}">
           </div>
         </div>
+        <div class="form-row">
+          <div class="form-group col-md-12">
+            <label for="brightPlanned">EoS Total Bright Designs (Est.)</label>
+            <input id="brightPlanned" type="text" name="brightPlanned" value="" disabled>
+            <label for="darkPlanned">EoS Total Dark Designs (Est.)</label>
+            <input id="darkPlanned" type="text" name="darkPlanned" value="" disabled>
+            <label for="survey_progress">% complete</label>
+          </div>
+        </div>
         <input type="button" name="button" value="Update Scaling" onClick="reDrawModel(this.form)">
       </form>
       <div id="cumulativeChart"></div>
@@ -420,7 +429,7 @@
   reRenderHists({{meta.mjd_min}});
 
   var cumulativeLayout = {
-      title: "Observing Progress VS Numerical Model",
+      title: "Observing Progress VS Numerical Model, {{survey_progress}} % complete",
       hovermode: 'closest',
       xaxis: {
         title: 'MJD',
@@ -467,6 +476,9 @@
 
   // Plotly.newPlot('cumulativeChart', [hist, model], cumulativeLayout);
 
+  const max_bright = {{max_bright}}
+  const max_dark = {{max_dark}}
+
   function reDrawModel(form){
     darkLength = parseFloat(form.darkLength.value) / 60.;
     brightLength = parseFloat(form.brightLength.value) / 60.;
@@ -510,6 +522,11 @@
     };
 
     Plotly.newPlot('cumulativeChart', [hist, newModel], cumulativeLayout);
+
+    let final_dark = max_dark / darkLength * weather / darkEfficiency;
+    let final_bright = max_bright / brightLength * weather / brightEfficiency;
+    form.brightPlanned.value = Math.round(final_bright - modelOffset);
+    form.darkPlanned.value = Math.round(final_dark - modelOffset);
     };
 
     let startForm = document.getElementById("redoParams");

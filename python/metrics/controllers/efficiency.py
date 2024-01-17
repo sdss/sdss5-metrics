@@ -99,6 +99,11 @@ async def index():
     cumulative_mjds = subset["mjd"]
     cumulative_mjds = [float(i) for i in cumulative_mjds]
 
+    survey_length = time_array["mjd"][-1] - time_array["mjd"][0]
+    nights_done = end_date - start_date
+
+    survey_progress = int(nights_done / survey_length * 100)
+
     if loc == "apo":
         model_params = {
             "dark_length": "23",
@@ -131,7 +136,10 @@ async def index():
         "dark_time": dark_time,
         "bright_time": bright_time,
         "cumulative_mjds": cumulative_mjds,
-        "model_params": model_params
+        "model_params": model_params,
+        "max_bright": time_array["cum_bright"][-1],
+        "max_dark": time_array["cum_dark"][-1],
+        "survey_progress": survey_progress
         })
 
     return await render_template("efficiency.html", **templateDict)
