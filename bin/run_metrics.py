@@ -174,6 +174,19 @@ def designVsMjd(design_data):
     time_file = f'/home/sdss5/tmp/metrics_plots/time_avail_{loc}.csv'
     time_array = np.genfromtxt(time_file, names=True, delimiter=",", dtype=None, encoding="UTF-8")
 
+    if loc == "apo":
+        dark_design = 23
+        bright_design = 21
+        dark_factor = 1.9
+        bright_factor = 1.1
+        weather = 0.5
+    else:
+        dark_design = 24
+        bright_design = 21
+        dark_factor = 1.9
+        bright_factor = 1.1
+        weather = 0.7
+
     dark_design = 23 / 60
     bright_design = 21 / 60
 
@@ -185,9 +198,9 @@ def designVsMjd(design_data):
     subset = time_array[time_array["mjd"] < end_date]
 
     # divided by 2 again for weather
-    max_bright = subset["cum_bright"] / bright_design / 2
+    max_bright = subset["cum_bright"] / bright_design * weather
     adjusted_bright = max_bright / bright_factor
-    max_dark = subset["cum_dark"] / dark_design / 2
+    max_dark = subset["cum_dark"] / dark_design * weather
     adjusted_dark = max_dark / dark_factor
 
     # total = max_bright + max_dark
