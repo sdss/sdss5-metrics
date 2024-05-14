@@ -6,6 +6,8 @@
   <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
   <title>Efficiency</title>
 
+  <link href="../static/css/slider.css" rel="stylesheet">
+
   <script src='https://cdn.plot.ly/plotly-2.18.2.min.js'></script>
 {% endblock head %}
 
@@ -58,9 +60,23 @@
 </div>
 
 <div class="row">
-  <div class="col-lg-6">
-    <input id="mjd_input" type="range" min="{{meta.mjd_min}}" max="{{meta.mjd_max}}" step="any" value="{{meta.mjd_min | int}}" oninput="reRenderHists(this.value)" style="vertical-align: middle">
-    <p>Start MJD: <output id="mjd">{{meta.mjd_min | int}}</output></p>
+  <div class="col-lg-6 col-md-8 col-sm-12">
+    <div class="range_container">
+      <div class="sliders_control">
+          <input id="fromSlider" type="range" min="{{meta.mjd_min}}" max="{{meta.mjd_max}}" value="{{meta.mjd_min | int}}"/>
+          <input id="toSlider" type="range" min="{{meta.mjd_min}}" max="{{meta.mjd_max}}" value="{{meta.mjd_max | int}}"/>
+      </div>
+      <div class="form_control">
+        <div class="form_control_container">
+            <div class="form_control_container__time">MJD Start</div>
+            <input class="form_control_container__time__input" type="number" id="fromInput" value="{{meta.mjd_min | int}}" min="{{meta.mjd_min}}" max="{{meta.mjd_max}}"/>
+        </div>
+        <div class="form_control_container">
+            <div class="form_control_container__time">MJD Stop</div>
+            <input class="form_control_container__time__input" type="number" id="toInput" value="{{meta.mjd_max | int}}" min="{{meta.mjd_min}}" max="{{meta.mjd_max}}"/>
+        </div>
+      </div> 
+    </div>
   </div>
 </div>
 
@@ -79,17 +95,104 @@
 </div>
 
 <script type="text/javascript">
+  function controlFromInput(fromSlider, fromInput, toInput, controlSlider) {
+    const [from, to] = getParsed(fromInput, toInput);
+    fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
+    if (from > to) {
+        fromSlider.value = to;
+        fromInput.value = to;
+    } else {
+        fromSlider.value = from;
+    }
+    reRenderHists(fromSlider.value, toSlider.value);
+  }
+      
+  function controlToInput(toSlider, fromInput, toInput, controlSlider) {
+      const [from, to] = getParsed(fromInput, toInput);
+      fillSlider(fromInput, toInput, '#C6C6C6', '#25daa5', controlSlider);
+      setToggleAccessible(toInput);
+      if (from <= to) {
+          toSlider.value = to;
+          toInput.value = to;
+      } else {
+          toInput.value = from;
+      }
+      reRenderHists(fromSlider.value, toSlider.value);
+  }
+
+  function controlFromSlider(fromSlider, toSlider, fromInput) {
+    const [from, to] = getParsed(fromSlider, toSlider);
+    fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', toSlider);
+    if (from > to) {
+      fromSlider.value = to;
+      fromInput.value = to;
+    } else {
+      fromInput.value = from;
+    }
+    reRenderHists(fromSlider.value, toSlider.value);
+  }
+
+  function controlToSlider(fromSlider, toSlider, toInput) {
+    const [from, to] = getParsed(fromSlider, toSlider);
+    fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', toSlider);
+    setToggleAccessible(toSlider);
+    if (from <= to) {
+      toSlider.value = to;
+      toInput.value = to;
+    } else {
+      toInput.value = from;
+      toSlider.value = from;
+    }
+    reRenderHists(fromSlider.value, toSlider.value);
+  }
+
+  function getParsed(currentFrom, currentTo) {
+    const from = parseInt(currentFrom.value, 10);
+    const to = parseInt(currentTo.value, 10);
+    return [from, to];
+  }
+
+  function fillSlider(from, to, sliderColor, rangeColor, controlSlider) {
+      const rangeDistance = to.max-to.min;
+      const fromPosition = from.value - to.min;
+      const toPosition = to.value - to.min;
+      controlSlider.style.background = `linear-gradient(
+        to right,
+        ${sliderColor} 0%,
+        ${sliderColor} ${(fromPosition)/(rangeDistance)*100}%,
+        ${rangeColor} ${((fromPosition)/(rangeDistance))*100}%,
+        ${rangeColor} ${(toPosition)/(rangeDistance)*100}%, 
+        ${sliderColor} ${(toPosition)/(rangeDistance)*100}%, 
+        ${sliderColor} 100%)`;
+  }
+
+  function setToggleAccessible(currentTarget) {
+    const toSlider = document.querySelector('#toSlider');
+    if (Number(currentTarget.value) <= 0 ) {
+      toSlider.style.zIndex = 2;
+    } else {
+      toSlider.style.zIndex = 0;
+    }
+  }
+
+  const fromSlider = document.querySelector('#fromSlider');
+  const toSlider = document.querySelector('#toSlider');
+  const fromInput = document.querySelector('#fromInput');
+  const toInput = document.querySelector('#toInput');
+  fillSlider(fromSlider, toSlider, '#C6C6C6', '#25daa5', toSlider);
+  setToggleAccessible(toSlider);
+
+  fromSlider.onchange = () => controlFromSlider(fromSlider, toSlider, fromInput);
+  toSlider.onchange = () => controlToSlider(fromSlider, toSlider, toInput);
+  fromInput.onchange = () => controlFromInput(fromSlider, fromInput, toInput, toSlider);
+  toInput.onchange = () => controlToInput(toSlider, fromInput, toInput, toSlider);
+
   const median = arr => {
     const mid = Math.floor(arr.length / 2),
       nums = [...arr].sort((a, b) => a - b);
     return arr.length % 2 !== 0 ? nums[mid] : (nums[mid - 1] + nums[mid]) / 2;
   };
 
-  const mjd = document.querySelector("#mjd")
-  const input = document.querySelector("#mjd_input")
-  input.addEventListener("input", (event) => {
-    mjd.textContent = parseInt(event.target.value)
-  })
 
   const b1_full = {{b1 | tojson}};
   const r1_full = {{r1 | tojson}};
@@ -97,11 +200,11 @@
   const boss_mjds = {{boss_mjd | tojson}}
   const ap_mjds = {{ap_mjd | tojson}}
 
-  function reRenderHists(mjd_min){
+  function reRenderHists(mjd_min, mjd_max){
     let b1 = [];
     let r1 = [];
     for (i = 0; i < boss_mjds.length; i++) {
-      if(boss_mjds[i] > mjd_min){
+      if(boss_mjds[i] > mjd_min && boss_mjds[i] < mjd_max){
         b1.push(b1_full[i]);
         r1.push(r1_full[i]);
       }
@@ -224,7 +327,7 @@
       autosize: false,
       width: 600,
       height: 550,
-      title: "MJD > " + parseInt(mjd_min),
+      title: parseInt(mjd_min) + " < MJD < " + parseInt(mjd_max),
       margin: {t: 50},
       hovermode: 'closest',
       bargap: 0,
@@ -386,7 +489,7 @@
       autosize: false,
       width: 600,
       margin: {t: 50},
-      title: "MJD > " + parseInt(mjd_min),
+      title: parseInt(mjd_min) + " < MJD < " + parseInt(mjd_max),
       hovermode: 'closest',
       bargap: 0,
       xaxis: {
@@ -427,7 +530,7 @@
 
     Plotly.newPlot('apogeeChart', apdata, aplayout);
   };
-  reRenderHists({{meta.mjd_min}});
+  reRenderHists({{meta.mjd_min}}, {{meta.mjd_max}});
 
   var cumulativeLayout = {
       title: "Observing Progress VS Numerical Model, {{survey_progress}} % complete",
