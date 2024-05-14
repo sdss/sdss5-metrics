@@ -61,27 +61,6 @@ def fieldQueryDone(cadence=None):
     return [f for f in fields]
 
 
-def designQueryMjd(cadence=None):
-    dbCad = targetdb.Cadence
-
-    Field = targetdb.Field
-    dbVersion = targetdb.Version.get(plan=rs_version)
-    Design = targetdb.Design
-    d2s = opsdb.DesignToStatus
-    doneStatus = opsdb.CompletionStatus.get(label="done").pk
-    d2f = targetdb.DesignToField
-
-    dquery = d2s.select(d2s.mjd, dbCad.label)\
-                .join(Design)\
-                .join(d2f, on=(Design.design_id == d2f.design_id))\
-                .join(Field, on=(Field.pk == d2f.field_pk))\
-                .join(dbCad)\
-                .where(d2s.completion_status_pk == doneStatus,
-                       Field.version == dbVersion).tuples()
-
-    return [[d[0], d[1]] for d in dquery]
-
-
 def programQueryMjd(program=None):
     """query targetdb for fields matching parameters
     """

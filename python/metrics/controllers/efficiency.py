@@ -24,11 +24,11 @@ async def index():
 
     mjds = np.linspace(np.min(boss_mjd), np.max(boss_mjd), 20)
 
-    meta = {"r_threshold": 3.0,
-            "b_threshold": 1.5,
+    meta = {"r_threshold": 2.0,
+            "b_threshold": 1.0,
             "r_max_bin": 10,
             "b_max_bin": 4,
-            "ap_threshold": 1012,
+            "ap_threshold": 800,
             "ap_max_bin": 4000,
             "mjd_min": np.min(boss_mjd),
             "mjd_max": np.max(boss_mjd)}

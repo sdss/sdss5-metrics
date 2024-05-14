@@ -196,7 +196,8 @@
     };
     var xtext = {
       x: [1, 5],
-      y: [{{meta.r_max}} - 75, {{meta.r_max}} - 75],
+      y: [{{meta.r_max}} - r1.length*0.05,
+          {{meta.r_max}} - r1.length*0.05],
       yaxis: 'y2',
       mode: 'text',
       name: 'stats',
@@ -206,7 +207,8 @@
       textfont: fontCfg
     };
     var ytext = {
-      x: [{{meta.b_max}} - 100, {{meta.b_max}} - 100],
+      x: [{{meta.b_max}} - b1.length*0.08, 
+          {{meta.b_max}} - b1.length*0.08],
       y: [-0.2, 3.5],
       xaxis: 'x2',
       mode: 'text',
