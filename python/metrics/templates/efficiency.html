@@ -442,7 +442,7 @@
 
     let ap = [];
     for (i = 0; i < ap_mjds.length; i++) {
-      if(ap_mjds[i] > mjd_min){
+      if(ap_mjds[i] > mjd_min && ap_mjds[i] < mjd_max){
         ap.push(ap_full[i]);
       }
     }
