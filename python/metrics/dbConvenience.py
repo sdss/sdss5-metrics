@@ -273,10 +273,7 @@ def designQueryMjd(cadence=None):
 
     dquery = d2s.select(d2s.mjd)\
                 .join(Design)\
-                .join(d2f, on=(Design.design_id == d2f.design_id))\
-                .join(Field, on=(Field.pk == d2f.field_pk))\
-                .where(d2s.completion_status_pk == doneStatus,
-                       Field.version == dbVersion).tuples()
+                .where(d2s.completion_status_pk == doneStatus).tuples()
 
     return [d[0] for d in dquery]
 
