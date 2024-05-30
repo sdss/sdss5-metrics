@@ -6,21 +6,13 @@ import os
 import numpy as np
 from matplotlib import pyplot as plt
 
-from astropy.io import fits
 from astropy.time import Time
 import astropy.coordinates as coord
 import astropy.units as un
-# from astropy.visualization import LogStretch
-# from matplotlib.colors import LinearSegmentedColormap
-# from astropy.visualization.mpl_normalize import ImageNormalize
-import matplotlib as mpl
-import os
 from datetime import datetime
-# import glob
 from scipy.interpolate import interp1d
 
 import numpy as np
-# from astropy.io import fits
 from peewee import JOIN
 
 from sdssdb.peewee.sdss5db import opsdb, targetdb
@@ -473,6 +465,8 @@ def weather(design_data):
 
 
 def onSky(design_data):
+    loc = os.getenv("OBSERVATORY").lower()
+
     g = (design_data['completion_status'] == 'done')
     ra_design_all = coord.Angle(-(design_data[g]['racen']+90)*un.degree)
     dec_design_all = coord.Angle(design_data[g]['deccen']*un.degree)
@@ -501,10 +495,13 @@ def onSky(design_data):
     d =ax.scatter(ra_design_all[j].radian, dec_design_all[j].radian, s=50, alpha=0.5, label='dark_monit', marker='h')
     d =ax.scatter(ra_design_all[k].radian, dec_design_all[k].radian, s=50, alpha=0.5, label='dark_plane', marker='h')
     d =ax.scatter(ra_design_all[l].radian, dec_design_all[l].radian, s=50, alpha=0.5, label= 'dark_rm', marker='h')
-    plt.legend(fancybox=True, frameon=True, loc='lower center')
+    if loc == "apo":
+        plt.legend(fancybox=True, frameon=True, loc='lower center')
+    else:
+        plt.legend(fancybox=True, frameon=True, loc='upper center')
     plt.title('Completed Designs')
     plt.tight_layout()
-    plt.savefig(str(plotfilepath + 'completed_designs_Jul7_by_mode.png'), dpi=300)
+    plt.savefig(str(plotfilepath + 'completed_designs_by_mode.png'), dpi=300)
     plt.close()
 
 # #url = 'https://wiki.sdss.org/rest/api/content/115082850/child/attachment'
