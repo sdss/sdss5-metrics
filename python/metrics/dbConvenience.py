@@ -280,3 +280,27 @@ def designQueryMjd(cadence=None):
 
     return [d[0] for d in dquery]
 
+def mjd_by_cadence(cname):
+    field = targetdb.Field
+    version = targetdb.Version
+    d2f = targetdb.DesignToField
+    design = targetdb.Design
+    obs = targetdb.Observatory
+    d2s = opsdb.DesignToStatus
+    cadence = targetdb.Cadence
+
+    mjds = field.select(fn.array_agg(d2s.mjd).alias("mjd"),
+                        field.field_id)\
+                .join(d2f).join(design).switch(field)\
+                .join(version).switch(field)\
+                .join(obs).switch(field)\
+                .join(cadence).switch(d2f)\
+                .join(d2s, on=(d2f.design_id == d2s.design_id))\
+                .where(version.plan == "theta-3",
+                        d2s.completion_status_pk == 3,
+                        cadence.label == cname)\
+                .group_by(field.field_id).dicts()
+
+    delta_nom = cadence.get(cadence.label == cname).delta
+
+    return mjds, delta_nom
