@@ -38,7 +38,7 @@
                     plotLines: [{ value: 0, width: 1, color: '#bf371f' }]}],
     tooltip: { crosshairs: true, shared: false, 
                 formatter:function(){
-                  return this.y.toFixed(1);}
+                  return this.series.name + ", " + this.y.toFixed(1) + " days since start";}
              },
     series: [
       {% for field in fields %}
