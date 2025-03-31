@@ -12,7 +12,19 @@
 <div class="row">
   <div class="col-md-6">
     <div class="card">
+      <h3>Limit to fields started after:</h3>
+      <form autocomplete="off" action="/rv_monit.html">
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label for="mjd_start">MJD</label>
+            <input id="mjd_start" type="text" name="mjd_start" {% if mjd_start != "none" %} value="{{mjd_start}}" {% else %} placeholder="" {% endif %}>
+        </div>
+        <button type="submit" class="btn btn-primary">Apply</button>
+      </form>
+    </div>
+    <div class="card">
       <div id="monit"></div>
+    </div>
   </div>
 </div>
 
