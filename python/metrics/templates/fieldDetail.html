@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+{% extends "layout.html" %}
+{% set active_page = "fieldDetail" %}
+{% from 'fieldExpMacro.html' import mjdExp, epochSNtable %}
+
+{% block head %}
+  <meta name="robots" content="noindex" />
+  <meta content="text/html; charset=UTF-8" http-equiv="content-type"/>
+  <title>Field {{fieldID}}</title>
+  <meta http-equiv="refresh" CONTENT="600"/>
+
+  {#  ${header("Field Detail")} #}
+{% endblock head %}
+
+{% block body %}
+<script src="../static/js/core/chroma.js"></script>
+<script src="../static/js/drawFields-v1.0.0.js"></script>
+
+
+<script type="text/javascript">
+  function guessNext(b_sum, r_sum, b_last, r_last){
+    let b = b_last + b_sum
+    let r = r_last + r_sum
+    alert(" R: " + r + "B: " + b )
+  }
+  const allSkies = {{skies | tojson}};
+  const times = {{times | tojson}};
+  const countSkies = times.length - 1;
+</script>
+
+{% if priority %}
+<div class="row">
+  <div class="alert alert-danger" role="alert">
+    <strong>Warning!</strong> This field is flagged {{priority}}
+  </div>
+</div>
+{% endif %}
+
+<div class="well">
+  <div class="row">
+    <div class="col-lg-6">
+      <div align=center>
+        <h2>Field {{fieldID}}</h2>
+        <h4><b>{{observatory}}</b></h4>
+        <h4>RA: {{"%.2f" % ra}}, Dec: {{"%.2f" % dec}}</h4>
+        <h4>Cadence: {{cadence}}</h4>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <input type="range" min="0" max="{{skies | length}}" step="1" value="{{start_idx}}" oninput="reRenderFieldBrightness(times[this.value])" style="vertical-align: middle">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-3">
+      {% if last_chance %}
+      <div class="row">
+        <div class="alert alert-primary" role="alert">
+          <strong>Heads up!</strong> Current epoch ends at {{last_chance}}
+          <p>Epoch Goal is {% for m in sn_reqs.keys() %} <strong> {{m}}: </strong> {{sn_reqs[m]}} {% endfor %} </p>
+        </div>
+      </div>
+      {% endif %}
+      <div class="card">
+        <div class="card card-nav-tabs">
+          <div class="card-header card-header-info">
+            <h3>Epoch [S/N]<sup>2</sup></h3>
+          </div>
+          {{epochSNtable(epochSN, done_status)}}
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-3"></div>
+    <div id="cloudCam" class="col-lg-3">
+      <canvas id='brightCanvas' width="680" height="580"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="well">
+  <div class="col-lg-4 col-md-6">
+    {% for m in exps.keys()|sort(reverse=True) %}
+      <div class="card">
+        <div class="card card-nav-tabs">
+          <div class="card-header card-header-danger">
+            <h3>{{m}}</h3>
+          </div>
+          {{mjdExp(exps[m], sums[m])}}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+    .xaxis text {
+      font: 12px sans-serif;
+    }
+
+    .xaxis line,
+    .xaxis path {
+      fill: none;
+      stroke: #000;
+      shape-rendering: crispEdges;
+    }
+</style>
+
+
+<script>
+  renderFieldBrightness({{skies[start_idx] | tojson}})
+</script>
+
+{% endblock body %}

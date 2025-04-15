@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+{% macro fieldList(fields, specialStatus, chosenCadence) %}
+    {% for field in fields %}
+    {% if field.priority | length > 0 %}
+        {% set pri = field.priority[0].label %}
+    {% else %}
+        {% set pri = "none" %}
+    {% endif %}
+        <tr>
+            <td>{{field.cadence.label}}</td>
+            <td class="text-left"> <a href="fieldDetail.html?fieldID={{field.field_id}}&pk={{field.pk}}">{{field.field_id}}</a></td>
+            <td class="text-left">{{field.doneCount}}</td>
+            <td class="text-left">{{"%.2f" % field.racen}}</td>
+            <td class="text-left">{{"%.2f" % field.deccen}}</td>
+            <td>
+                <button type="button" title="schedule if possible" class="btn {% if pri == "top" %} btn-primary {% else %} btn-success {% endif %}" disabled>
+                    <i class="material-icons">thumb_up_off_alt</i>
+                </button>
+            </td>
+            <td>
+                <button type="button" title="do not schedule" class="btn {% if pri == "disabled" %} btn-primary {% else %} btn-danger {% endif %}" disabled>
+                    <i class="material-icons">thumb_down_off_alt</i>
+                </button>
+            </td>
+            <td>
+                {% if pri == "none" %}
+                    <button type="button" title="return to default" class="btn btn-info" disabled>
+                        <i class="material-icons">undo</i>
+                    </button>
+                {% else %}
+                    <button type="button" title="return to default" class="btn btn-info" disabled>
+                        <i class="material-icons">undo</i>
+                    </button>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+{% endmacro %}

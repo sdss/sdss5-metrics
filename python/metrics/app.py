@@ -75,7 +75,8 @@ from metrics.controllers.targets import targets_page
 from metrics.controllers.cartons import carton_page
 from metrics.controllers.efficiency import efficiency_page
 from metrics.controllers.rv_monit import rv_monit_page
-
+from metrics.controllers.fieldDetail import fieldDetail_page
+from metrics.controllers.fieldQuery import fieldQuery_page
 
 from metrics.controllers.local import localSource
 from metrics.controllers import getTemplateDictBase
@@ -91,6 +92,8 @@ app.register_blueprint(targets_page)
 app.register_blueprint(carton_page)
 app.register_blueprint(efficiency_page)
 app.register_blueprint(rv_monit_page)
+app.register_blueprint(fieldDetail_page)
+app.register_blueprint(fieldQuery_page)
 
 
 @app.errorhandler(404)
